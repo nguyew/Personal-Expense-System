@@ -174,4 +174,21 @@ public class DateUtils {
         return cal.get(Calendar.YEAR);
     }
     
+    // Validation methods
+    public static boolean isValidDateRange (Date startDate, Date endDate) {
+        return startDate != null && endDate != null && !startDate.after(endDate);
+    }
+    
+    public static String getMonthName (int month) {
+        String[] months = {
+            "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+            "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+        };
+        
+        if (month >= 1 && month <= 12) {
+            return months[month - 1];
+        }
+        return "Không xác định";
+    }
+    
 }

@@ -114,4 +114,19 @@ public class DateUtils {
         return getLastDayOfYear(new Date());
     }
     
+    // Get specific month/year
+    public static Date getMonthStart (int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month -1, 1); // Month is 0-based
+        return cal.getTime();
+    }
+    
+    public static Date getMonthEnd (int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month - 1, 1); // Month is 0-based
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return cal.getTime();
+    }
+    
+    
 }

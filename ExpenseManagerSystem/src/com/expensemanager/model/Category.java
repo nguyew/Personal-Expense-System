@@ -1,6 +1,6 @@
 package com.expensemanager.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class Category {
     public enum CategoryType {
@@ -9,24 +9,24 @@ public class Category {
     
     private int categoryID;
     private String categoryName;
-    private CategoryType categoryType;
+    private String categoryType;
     private String description;
     private String iconName;
     private String color;
     private int userID;
     private boolean isDefault;
-    private LocalDateTime createdDate;
+    private Date createdDate;
     
     public Category() {
     }
     
-    public Category(String categoryName, CategoryType categoryType, String description, int userID) {
+    public Category(String categoryName, String categoryType, String description, int userID) {
         this.categoryName = categoryName;
         this.categoryType = categoryType;
         this.description = description;
         this.userID = userID;
         this.isDefault = false;
-        this.createdDate = LocalDateTime.now();
+        this.createdDate = new Date();
     }
     
     // Getters và Setters
@@ -36,8 +36,8 @@ public class Category {
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
     
-    public CategoryType getCategoryType() { return categoryType; }
-    public void setCategoryType(CategoryType categoryType) { this.categoryType = categoryType; }
+    public String getCategoryType() { return categoryType; }
+    public void setCategoryType(String categoryType) { this.categoryType = categoryType; }
     
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -54,8 +54,8 @@ public class Category {
     public boolean isDefault() { return isDefault; }
     public void setDefault(boolean aDefault) { isDefault = aDefault; }
     
-    public LocalDateTime getCreatedDate() { return createdDate; }
-    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
+    public Date getCreatedDate() { return createdDate; }
+    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
     
     @Override
     public String toString() {

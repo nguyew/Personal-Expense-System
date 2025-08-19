@@ -1,6 +1,6 @@
 package com.expensemanager.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class User {
     private int userID;
@@ -9,8 +9,8 @@ public class User {
     private String fullName;
     private String email;
     private String phone;
-    private LocalDateTime createdDate;
-    private LocalDateTime lastLogin;
+    private Date createdDate;
+    private Date lastLogin;
     private boolean isActive;
     
     // Constructor mặc định
@@ -25,7 +25,7 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.isActive = true;
-        this.createdDate = LocalDateTime.now();
+        this.createdDate = new Date();
     }
     
     // Getters và Setters
@@ -47,11 +47,11 @@ public class User {
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
     
-    public LocalDateTime getCreatedDate() { return createdDate; }
-    public void setCreatedDate(LocalDateTime createdDate) { this.createdDate = createdDate; }
+    public Date getCreatedDate() { return createdDate; }
+    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
     
-    public LocalDateTime getLastLogin() { return lastLogin; }
-    public void setLastLogin(LocalDateTime lastLogin) { this.lastLogin = lastLogin; }
+    public Date getLastLogin() { return lastLogin; }
+    public void setLastLogin(Date lastLogin) { this.lastLogin = lastLogin; }
     
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }

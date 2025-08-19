@@ -128,7 +128,7 @@ public class UserDAO {
     }
     
     // Helper method to map ResultSet to User object
-    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+    private User mapResultSetToUser (ResultSet rs) throws SQLException {
         User user = new User();
         user.setUserID(rs.getInt("UserID"));
         user.setUsername(rs.getString("Username"));
@@ -136,18 +136,8 @@ public class UserDAO {
         user.setFullName(rs.getString("FullName"));
         user.setEmail(rs.getString("Email"));
         user.setPhone(rs.getString("Phone"));
-        
-        // Convert Timestamp to LocalDateTime
-        Timestamp createdTimestamp = rs.getTimestamp("CreatedDate");
-        if (createdTimestamp != null) {
-            user.setCreatedDate(createdTimestamp.toLocalDateTime());
-        }
-        
-        Timestamp lastLoginTimestamp = rs.getTimestamp("LastLogin");
-        if (lastLoginTimestamp != null) {
-            user.setLastLogin(lastLoginTimestamp.toLocalDateTime());
-        }
-        
+        user.setCreatedDate(rs.getTimestamp("CreatedDate"));
+        user.setLastLogin(rs.getTimestamp("LastLogin"));
         user.setActive(rs.getBoolean("IsActive"));
         
         return user;

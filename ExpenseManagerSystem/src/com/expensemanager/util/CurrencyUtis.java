@@ -73,9 +73,9 @@ public class CurrencyUtis {
     // Color coding for amounts
     public static String getAmountColor (double amount, boolean isIncome) {
         if (isIncome) {
-            return "#4CAF50";
+            return "#4CAF50"; // Green for income
         } else {
-            return "#F44336";
+            return "#F44336"; // Red for expense
         }
     }
 }

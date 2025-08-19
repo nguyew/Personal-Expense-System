@@ -96,4 +96,22 @@ public class DateUtils {
         cal.add(Calendar.YEAR, years);
         return cal.getTime();
     }
+    
+    // Get current time periods
+    public static Date getCurrentMonthStart () {
+        return getFirstDayOfMonth(new Date());
+    }
+    
+    public static Date getCurrentMonthEnd () {
+        return getLastDayOfMonth(new Date());
+    }
+    
+    public static Date getCurrentYearStart () {
+        return getFirstDayOfYear(new Date());
+    }
+    
+    public static Date getCurrentYearEnd () {
+        return getLastDayOfYear(new Date());
+    }
+    
 }

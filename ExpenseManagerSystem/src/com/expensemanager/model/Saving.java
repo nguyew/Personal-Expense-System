@@ -32,7 +32,7 @@ public class Saving {
         this.currentAmount = currentAmount;
         this.targetDate = targetDate;
         this.priority = priority;
-        this.isCompleted = isCompleted;
+        this.isCompleted = isCompleted; 
         this.createdDate = createdDate;
         this.completedDate = completedDate;
     }

@@ -33,6 +33,7 @@ public class TransactionDAO {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         transaction.setTransactionID(generatedKeys.getInt(1));
+                        return true;
                     }
                 }
             }

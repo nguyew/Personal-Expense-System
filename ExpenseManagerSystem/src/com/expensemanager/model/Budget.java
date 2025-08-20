@@ -23,6 +23,8 @@ public class Budget {
         this.alertThreshold = 80.0; // Default 80%
         this.createdDate = new Date();
         this.modifiedDate = new Date();
+        this.currentSpent = 0.0;
+        this.status = "OK";
     }
 
     public Budget(int budgetID, int userID, int categoryID, double budgetAmount, int month, int year, double alertThreshold, Date createdDate, Date modifiedDate, String categoryName, double currentSpent, String status) {
@@ -134,5 +136,69 @@ public class Budget {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    // Helper methods
+    public boolean isExceeded () {
+        return currentSpent > budgetAmount;
+    }
+    
+    public boolean isWarning () {
+        if (budgetAmount == 0) return false;
+        double percentageUsed = (currentSpent / budgetAmount) * 100;
+        return percentageUsed >= alertThreshold && percentageUsed < 100;
+    }
+    
+    public double getUsedPercentage () {
+        if (budgetAmount == 0) return 0;
+        return (currentSpent / budgetAmount) * 100;
+    }
+    
+    public double getRemainingAmount () {
+        return budgetAmount - currentSpent;
+    }
+    
+    public String calculateStatus () {
+        if (isExceeded()) {
+            return "EXCEED";
+        } else if (isWarning()) {
+            return "WARNING";
+        } else {
+            return "OK";
+        }
+    }
+    
+    public void updateStatus () {
+        this.status = calculateStatus();
+    }
+    
+    public String getFormattedBudgetAmount () {
+        return String.format("%,.0f VNĐ", budgetAmount);
+    }
+    
+    public String getFormattedCurrentSpent () {
+        return String.format("%,. 0f VNĐ", currentSpent);
+    }
+    
+    public String getFormattedRemainingAmount() {
+        double remaining = getRemainingAmount();
+        if (remaining < 0) {
+            return String.format("-%,.0f VNĐ", Math.abs(remaining));
+        } else {
+            return String.format("%,.0f VNĐ", remaining);
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return "Budget{" +
+                "budgetID=" + budgetID +
+                ", categoryName='" + categoryName + '\'' +
+                ", budgetAmount=" + budgetAmount +
+                ", currentSpent=" + currentSpent +
+                ", status='" + status + '\'' +
+                ", month=" + month +
+                ", year=" + year +
+                '}';
     }
 }

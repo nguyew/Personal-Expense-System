@@ -109,6 +109,108 @@ public class BudgetDAO {
         return budgets;
     }
     
+    // Get budget by category and period
+    public Budget getBudgetByCategory(int userID, int categoryID, int month, int year) {
+        String sql = "SELECT b.*, c.CategoryName FROM Budget b " +
+                    "INNER JOIN Categories c ON b.CategoryID = c.CategoryID " +
+                    "WHERE b.UserID = ? AND b.CategoryID = ? AND b.Month = ? AND b.Year = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, userID);
+            pstmt.setInt(2, categoryID);
+            pstmt.setInt(3, month);
+            pstmt.setInt(4, year);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToBudget(rs);
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting budget by category: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    // Update budget
+    public boolean updateBudget(Budget budget) {
+        String sql = "UPDATE Budget SET BudgetAmount = ?, AlertThreshold = ?, ModifiedDate = GETDATE() WHERE BudgetID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setDouble(1, budget.getBudgetAmount());
+            pstmt.setDouble(2, budget.getAlertThreshold());
+            pstmt.setInt(3, budget.getBudgetID());
+            
+            return pstmt.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error updating budget: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    // Delete budget
+    public boolean deleteBudget(int budgetID) {
+        String sql = "DELETE FROM Budget WHERE BudgetID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, budgetID);
+            return pstmt.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error deleting budget: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    // Check budget alerts
+    public List<Budget> getBudgetAlerts(int userID, int month, int year) {
+        List<Budget> alerts = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             CallableStatement cstmt = conn.prepareCall("{call sp_CheckBudgetAlert(?, ?, ?)}")) {
+            
+            cstmt.setInt(1, userID);
+            cstmt.setInt(2, month);
+            cstmt.setInt(3, year);
+            
+            try (ResultSet rs = cstmt.executeQuery()) {
+                while (rs.next()) {
+                    Budget budget = new Budget();
+                    budget.setBudgetID(rs.getInt("BudgetID"));
+                    budget.setBudgetAmount(rs.getDouble("BudgetAmount"));
+                    budget.setCategoryName(rs.getString("CategoryName"));
+                    budget.setCurrentSpent(rs.getDouble("CurrentSpent"));
+                    budget.setStatus(rs.getString("Status"));
+                    
+                    // Only return WARNING or EXCEEDED budgets
+                    if ("WARNING".equals(budget.getStatus()) || "EXCEEDED".equals(budget.getStatus())) {
+                        alerts.add(budget);
+                    }
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting budget alerts: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return alerts;
+    }
+    
     // Helper method to map ResultSet to Budget
     private Budget mapResultSetToBudget(ResultSet rs) throws SQLException {
         Budget budget = new Budget();

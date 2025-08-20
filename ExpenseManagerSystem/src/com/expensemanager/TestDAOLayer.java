@@ -86,7 +86,7 @@ public class TestDAOLayer {
             System.out.println("- " + budget.getCategoryName() + 
                              ": " + CurrencyUtils.formatCurrency(budget.getBudgetAmount()) + 
                              " (spent: " + CurrencyUtils.formatCurrency(budget.getCurrentSpent()) + 
-                             ", " + String.format("%.1f", budget.getUsagePercentage()) + "%) " +
+                             ", " + String.format("%.1f", budget.getUsedPercentage()) + "%) " +
                              "[" + budget.getStatus() + "]");
         }
         
@@ -95,7 +95,7 @@ public class TestDAOLayer {
         System.out.println("\nBudget Alerts: " + alerts.size());
         for (Budget alert : alerts) {
             System.out.println("- WARNING: " + alert.getCategoryName() + 
-                             " exceeded " + String.format("%.1f", alert.getUsagePercentage()) + "% of budget");
+                             " exceeded " + String.format("%.1f", alert.getUsedPercentage()) + "% of budget");
         }
         
         // Test SavingDAO

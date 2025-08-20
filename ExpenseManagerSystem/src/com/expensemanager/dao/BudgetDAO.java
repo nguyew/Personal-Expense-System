@@ -89,8 +89,8 @@ public class BudgetDAO {
                     budget.setCurrentSpent(rs.getDouble("CurrentSpent"));
                     
                     // Calculate status
-                    if (budget.isExceeded()) {
-                        budget.setStatus("EXCEEDED");
+                        if (budget.isExceeded()) {
+                        budget.setStatus("EXCEED");
                     } else if (budget.isWarning()) {
                         budget.setStatus("WARNING");
                     } else {
@@ -196,8 +196,8 @@ public class BudgetDAO {
                     budget.setCurrentSpent(rs.getDouble("CurrentSpent"));
                     budget.setStatus(rs.getString("Status"));
                     
-                    // Only return WARNING or EXCEEDED budgets
-                    if ("WARNING".equals(budget.getStatus()) || "EXCEEDED".equals(budget.getStatus())) {
+                    // Only return WARNING or EXCEED budgets
+                    if ("WARNING".equals(budget.getStatus()) || "EXCEED".equals(budget.getStatus())) {
                         alerts.add(budget);
                     }
                 }

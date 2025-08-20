@@ -65,7 +65,7 @@ public class BudgetDAO {
     }
     
     // Get budget by user and period 
-    public List<Budget> getBudgetByUserAndPeriod (int userID, int month, int year) {
+    public List<Budget> getBudgetsByUserAndPeriod (int userID, int month, int year) {
         List<Budget> budgets = new ArrayList<>();
         String sql = "SELECT b.*, c.CategoryName, " +
                     "ISNULL((SELECT SUM(Amount) FROM Transactions t WHERE t.CategoryID = b.CategoryID " +

@@ -4,9 +4,9 @@ import com.expensemanager.dao.*;
 import com.expensemanager.model.*;
 import com.expensemanager.util.DateUtils;
 import com.expensemanager.util.CurrencyUtils;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.sql.Date;
 
 public class TestDAOLayer {
     
@@ -64,8 +64,8 @@ public class TestDAOLayer {
         System.out.println("- Transaction Count: " + monthlyStats.get("incomeCount") + " income, " + monthlyStats.get("expenseCount") + " expense");
         
         // Test expense summary by category
-        Date startDate = DateUtils.getMonthStart(8, 2025);
-        Date endDate = DateUtils.getMonthEnd(8, 2025);
+        Date startDate = (Date) DateUtils.getMonthStart(8, 2025);
+        Date endDate = (Date) DateUtils.getMonthEnd(8, 2025);
         
         Map<String, Double> expenseSummary = transactionDAO.getExpenseSummaryByCategory(
             testUser.getUserID(), startDate, endDate);

@@ -74,8 +74,8 @@ public class ReportDAO {
         return result;
     }
         
-        // Get daily expense for current month
-    public Map<Integer, Double> getDailyExpenseCurrentMontn (int userID) {
+    // Get daily expense for current month
+    public Map<Integer, Double> getDailyExpenseCurrentMonth (int userID) {
         Map<Integer, Double> result = new HashMap<>();
         String sql = "SELECT DAY(TransactionDate) as Day, SUM(Amount) as DailyAmount " +
                     "FROM Transactions " +

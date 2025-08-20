@@ -27,14 +27,14 @@ public class ExpenseManagerApp {
             return; // Exit if can't connect to database
         }
         
-        // Start the application
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new LoginForm().setVisible(true);
-            } catch (Exception e) {
-                System.err.println("Error starting application: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
+//        // Start the application
+//        SwingUtilities.invokeLater(() -> {
+//            try {
+//                new LoginForm().setVisible(true);
+//            } catch (Exception e) {
+//                System.err.println("Error starting application: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        });
     }
 }

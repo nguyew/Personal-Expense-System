@@ -5,7 +5,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 
-public class CurrencyUtis {
+public class CurrencyUtils {
     
     private static final NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
     private static final DecimalFormat decimalFormat = new DecimalFormat("#,###.##");

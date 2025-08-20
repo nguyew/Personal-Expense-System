@@ -12,7 +12,7 @@ public class Budget {
     private int year;
     private double alertThreshold;
     private Date createdDate;
-    private Date modifieldDate;
+    private Date modifiedDate;
     
     // Additional fields for reports
     private String categoryName;
@@ -22,10 +22,10 @@ public class Budget {
     public Budget () {
         this.alertThreshold = 80.0; // Default 80%
         this.createdDate = new Date();
-        this.modifieldDate = new Date();
+        this.modifiedDate = new Date();
     }
 
-    public Budget(int budgetID, int userID, int categoryID, double budgetAmount, int month, int year, double alertThreshold, Date createdDate, Date modifieldDate, String categoryName, double currentSpent, String status) {
+    public Budget(int budgetID, int userID, int categoryID, double budgetAmount, int month, int year, double alertThreshold, Date createdDate, Date modifiedDate, String categoryName, double currentSpent, String status) {
         this.budgetID = budgetID;
         this.userID = userID;
         this.categoryID = categoryID;
@@ -34,7 +34,7 @@ public class Budget {
         this.year = year;
         this.alertThreshold = alertThreshold;
         this.createdDate = createdDate;
-        this.modifieldDate = modifieldDate;
+        this.modifiedDate = modifiedDate;
         this.categoryName = categoryName;
         this.currentSpent = currentSpent;
         this.status = status;
@@ -104,12 +104,12 @@ public class Budget {
         this.createdDate = createdDate;
     }
 
-    public Date getModifieldDate() {
-        return modifieldDate;
+    public Date getModifiedDate() {
+        return modifiedDate;
     }
 
-    public void setModifieldDate(Date modifieldDate) {
-        this.modifieldDate = modifieldDate;
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 
     public String getCategoryName() {

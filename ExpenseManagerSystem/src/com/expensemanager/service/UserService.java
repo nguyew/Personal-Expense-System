@@ -126,7 +126,7 @@ public class UserService {
             }
             
             if (phone != null && !phone.trim().isEmpty() && !PHONE_PATTERN.matcher(phone.trim()).matches()) {
-                return ServiceResult.error("Số điên thoại không đúng định dạng.");
+                return ServiceResult.error("Số điện thoại không đúng định dạng.");
             }
             
             // Check if new email is already used by another user
@@ -151,7 +151,7 @@ public class UserService {
                 return ServiceResult.error("Không thể cập nhật thông tin");
             }
         } catch (Exception e) {
-            return ServiceResult.error("Lỗi hệ thông: " + e.getMessage());
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
     
@@ -172,7 +172,7 @@ public class UserService {
             }
             
             // Get current user
-            User user = userDAO.getUserById();
+            User user = userDAO.getUserById(userID);
             if (user == null) {
                 return ServiceResult.error("Không tìm thấy tài khoản");
             }
@@ -188,7 +188,7 @@ public class UserService {
             boolean updated = userDAO.updateUser(user);
             
             if (updated) {
-                return ServiceResult.success(null, "D9oi63 mật khẩu thành công");
+                return ServiceResult.success(null, "Đổi mật khẩu thành công");
             } else {
                 return ServiceResult.error("Không thể dổi mật khẩu");
             }
@@ -196,6 +196,43 @@ public class UserService {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
         
+    }
+    
+    public ServiceResult<UserDashboard> getUserDashboard (int userID) {
+        try {
+            User user = userDAO.getUserById(userID);
+            if (user == null) {
+                return ServiceResult.error("Không tìm thấy tài khoản");
+            }
+            
+            UserDashboard dashboard = new UserDashboard();
+            dashboard.setUser(user);
+            
+            int currentMonth = DateUtils.getCurrentMonth();
+            int currentYear = DateUtils.getCurrentYear();
+            
+            // Get current month statistics
+            Map<String, Object> monthlyStats = transactionDAO.getMonthlyStatistics(userID, currentMonth, currentYear);
+            dashboard.setCurrentMonthIncome((Double) monthlyStats.get("totalIncome"));
+            dashboard.setCurrentMonthExpense((Double) monthlyStats.get("totalExpense"));
+            dashboard.setCurrentMonthNet((Double) monthlyStats.get("netAmount"));
+            
+            // Get recent transaction
+            List<Transaction> recentTransactions = transactionDAO.getRecentTransactions(userID, 5);
+            dashboard.setRecentTransactions(recentTransactions);
+            
+            // Get budget alerts
+            List<Budget> budgetAlerts = budgetDAO.getBudgetAlerts(userID, currentMonth, currentYear);
+            dashboard.setBudgetAlerts(budgetAlerts);
+            
+            // Get saving progress
+            List<Saving> savings = savingDAO.getSavingsByUser(userID);
+            dashboard.setSavings(savings);
+            
+            // Calculate financial heath score
+            dashboard.setFinancialHealthScore(calculateFinancialHealthScore());
+        } catch (Exception e) {
+        }
     }
     
     private ServiceResult<Void> validateUserData(String username, String password, 
@@ -288,6 +325,57 @@ public class UserService {
         for (String[] cat : expenseCategories) {
             Category category = new Category(cat[0], "EXPENSE", cat[1], userID);
             categoryDAO.createCategory(category);
+        }
+    }
+
+    private int calculateFinancialHealthScore(int userID) {
+        try {
+            int score = 0;
+            int currentMonth = DateUtils.getCurrentMonth();
+            int currentYear = DateUtils.getCurrentYear();
+            
+            // Get current month statistics
+            Map<String, Object> stats = transactionDAO.getMonthlyStatistics(userID, currentMonth, currentYear);
+            double income = (Double) stats.get("totalIncome");
+            double expense = (Double) stats.get("totalExpense");
+            
+            // Score based on savings rate (40 points max)
+            if (income > 0) {
+                double savingsRate = (income - expense) / income;
+                if (savingsRate >= 0.2) score += 40;
+                else if (savingsRate >= 0.1) score += 30;
+                else if (savingsRate >= 0.05) score += 20;
+                else if (savingsRate > 0) score += 10;
+            }
+            
+            // Score based on udget adherence (30 points max)
+            List<Budget> budgets = budgetDAO.getBudgetsByUserAndPeriod(userID, currentMonth, currentYear);
+            if (!budgets.isEmpty()) {
+                int budgetScore = 0;
+                for (Budget budget : budgets) {
+                    if ("OK".equals(budget.getStatus())) {
+                        budgetScore += 10;
+                    } else if ("WARNING".equals(budget.getStatus())) {
+                        budgetScore += 5;
+                    }
+                }
+                score += Math.min(30, budgetScore);
+            }
+            
+            // Score based on saving goals progress (30 points max)
+            List<Saving> savings = savingDAO.getSavingsByUser(userID);
+            if (!savings.isEmpty()) {
+                double avgProgress = savings.stream()
+                        .mapToDouble(Saving::getCompletionPercentage)
+                        .average()
+                        .orElse(0);
+                score += (int) Math.min(30, avgProgress * 0.3);
+            }
+            
+            return Math.min(100, score);
+            
+        } catch (Exception e) {
+            return 50; // Default socre on error
         }
     }
 }

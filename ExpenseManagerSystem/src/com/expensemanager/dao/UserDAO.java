@@ -172,6 +172,28 @@ public class UserDAO {
         return null;
     }
     
+    // Find user by ID
+    public User getUserById (int userID) {
+        String sql = "SELECT * FROM Users WHERE UserID = ? AND IsActive = 1";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, userID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error finding user by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
     // Helper method to map ResultSet to User object
     private User mapResultSetToUser (ResultSet rs) throws SQLException {
         User user = new User();

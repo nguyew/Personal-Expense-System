@@ -155,6 +155,49 @@ public class UserService {
         }
     }
     
+    public ServiceResult<Void> changePassword (int userID, String currentPassword,
+                                              String newPassword, String confirmPassword) {
+        try {
+            // Validate input
+            if (currentPassword == null || currentPassword.isEmpty()) {
+                return ServiceResult.error("Mật khẩu hiện tại không được để trống");
+            }
+            
+            if (newPassword == null || newPassword.length() < 6) {
+                return ServiceResult.error("Mật khẩu phải có ít nhất 6 ký tự.");
+            }
+            
+            if (!newPassword.equals(confirmPassword)) {
+                return ServiceResult.error("Mật khẩu mới và xác nhận không khớp");
+            }
+            
+            // Get current user
+            User user = userDAO.getUserById();
+            if (user == null) {
+                return ServiceResult.error("Không tìm thấy tài khoản");
+            }
+            
+            // Verify current password 
+            String hashedCurrentPassword = hashPassword(currentPassword);
+            if (!user.getPassword().equals(hashedCurrentPassword)) {
+                return ServiceResult.error("Mật khẩu hiện tại không đúng");
+            }
+            
+            // Update password
+            user.setPassword(hashPassword(newPassword));
+            boolean updated = userDAO.updateUser(user);
+            
+            if (updated) {
+                return ServiceResult.success(null, "D9oi63 mật khẩu thành công");
+            } else {
+                return ServiceResult.error("Không thể dổi mật khẩu");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+        
+    }
+    
     private ServiceResult<Void> validateUserData(String username, String password, 
                                                String confirmPassword, String fullName, 
                                                String email, String phone) {

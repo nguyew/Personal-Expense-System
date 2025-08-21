@@ -79,12 +79,12 @@ public class UserService {
             }
             
             // Check if username already exists
-            if (userDAO.findUserByUsername) {
+            if (userDAO.findUserByUserName(username.trim()) != null) {
                 return ServiceResult.error("Tên đăng nhập đã tồn tại");
             }
             
             // Check if email already exists
-            if (userDAO.findUserByEmail) {
+            if (userDAO.findUserByEmail(email.trim()) != null) {
                 return ServiceResult.error("Email đã được sử dụng");
             }
             

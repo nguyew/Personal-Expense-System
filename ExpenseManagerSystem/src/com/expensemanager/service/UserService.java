@@ -113,6 +113,48 @@ public class UserService {
         }
     }
     
+    public ServiceResult<User> updateUserProfile (User user, String fullName,
+                                                 String email, String phone) {
+        try {
+            // Validate input
+            if (fullName == null || fullName.trim().isEmpty()) {
+                return ServiceResult.error("Họ tên không được để trống");
+            }
+            
+            if (email != null && !email.trim().isEmpty() && !EMAIL_PATTERN.matcher(email.trim()).matches()) {
+                return ServiceResult.error("Email không đúng định dạng");
+            }
+            
+            if (phone != null && !phone.trim().isEmpty() && !PHONE_PATTERN.matcher(phone.trim()).matches()) {
+                return ServiceResult.error("Số điên thoại không đúng định dạng.");
+            }
+            
+            // Check if new email is already used by another user
+            if (email != null && !email.trim().isEmpty()) {
+                User existingUser = userDAO.findUserByEmail(email.trim());
+                if (existingUser != null && existingUser.getUserID() != user.getUserID()) {
+                    return ServiceResult.error("Email đã được sử dụng bởi tài khoản khác");
+                }
+            }
+            
+            // Update user data
+            user.setFullName(fullName.trim());
+            user.setEmail(email != null ? email.trim() : "");
+            user.setPhone(phone != null ? phone.trim() : "");
+            
+            // Save to database
+            boolean updated = userDAO.updateUser(user);
+            
+            if (updated) {
+                return ServiceResult.success(user, "Cập nhật thông tin thành công");
+            } else {
+                return ServiceResult.error("Không thể cập nhật thông tin");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thông: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateUserData(String username, String password, 
                                                String confirmPassword, String fullName, 
                                                String email, String phone) {

@@ -65,7 +65,7 @@ public class UserDAO {
     
     // Update user profile
     public boolean updateUser (User user) {
-       String sql = "UPDATE Users SET FullName = ?, Email = ?, Phone = ? WHERE UserID = ?";
+       String sql = "UPDATE Users SET FullName = ?, Email = ?, Phone = ?, LastLogin = ? WHERE UserID = ?";
        
         try (Connection conn = DatabaseConnection.getDBConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -73,7 +73,8 @@ public class UserDAO {
             pstmt.setString(1, user.getFullName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPhone());
-            pstmt.setInt(4, user.getUserID());
+            pstmt.setTimestamp(4, user.getLastLogin() != null ? new Timestamp(user.getLastLogin().getTime()) : null);
+            pstmt.setInt(5, user.getUserID());
             
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -125,6 +126,50 @@ public class UserDAO {
         }
         
         return users;
+    }
+    
+    // Find user by username only
+    public User findUserByUserName (String username) {
+        String sql = "SELECT * FROM Users WHERE Username = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, username);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding user by username: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    // Find user by email
+    public User findUserByEmail(String email) {
+        String sql = "SELECT * FROM Users WHERE Email = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, email);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding user by email: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
     }
     
     // Helper method to map ResultSet to User object

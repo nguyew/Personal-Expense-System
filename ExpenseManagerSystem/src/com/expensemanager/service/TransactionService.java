@@ -29,8 +29,40 @@ public class TransactionService {
                                                         Date transactionDate, String location, String notes) {
         try {
             // Validate input data
-            ServiceResult<Void> validation = validateTransactionData(userID, categoryID, amount, transactionType, description, transactionDate);
+            ServiceResult<Void> validation = validateTransactionData(userID, categoryID, amount, 
+                                                                    transactionType, description, transactionDate);
+            if (!validation.isSuccess()) {
+                return ServiceResult.error(validation.getMessage());
+            }
+            
+            // Create transaction object
+            Transaction transaction = new Transaction();
+            transaction.setUserID(userID);
+            transaction.setCategoryID(categoryID);
+            transaction.setAmount(amount);
+            transaction.setTransactionType(transactionType.toUpperCase());
+            transaction.setDescription(description != null ? description.trim() : "");
+            transaction.setTransactionDate(transactionDate);
+            transaction.setLocation(location);
+            transaction.setNotes(notes != null ? notes.trim() : "");
+            transaction.setCreatedDate(new java.util.Date());
+            transaction.setModifieldDate(new java.util.Date());
+            
+            // Save transaction
+            boolean created = transactionDAO.createTransaction(transaction);
+            
+            if (created) {
+                // Update budget tracking if this is an expense
+                if ("EXPENSE".equals(transactionType.toUpperCase())) {
+                    updateBudgetTracking();
+                }
+                
+                return ServiceResult.success(transaction, "Giao dịch đã được tạo thành công");
+            } else {
+                return ServiceResult.error("Không thể tạo giao dịch");
+            }
         } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
         
     }
@@ -101,5 +133,9 @@ public class TransactionService {
         }
         
         return ServiceResult.success("Dữ liệu hợp lệ");
+    }
+
+    private void updateBudgetTracking() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

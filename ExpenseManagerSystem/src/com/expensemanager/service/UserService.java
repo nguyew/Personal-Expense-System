@@ -230,8 +230,11 @@ public class UserService {
             dashboard.setSavings(savings);
             
             // Calculate financial heath score
-            dashboard.setFinancialHealthScore(calculateFinancialHealthScore());
+            dashboard.setFinancialHealthScore(calculateFinancialHealthScore(userID));
+            
+            return ServiceResult.success(dashboard, "Tải dashboard thành công");
         } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
     

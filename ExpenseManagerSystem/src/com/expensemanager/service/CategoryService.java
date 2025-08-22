@@ -65,8 +65,13 @@ public class CategoryService {
     private ServiceResult<Void> validateCategoryData(int userID, String categoryName, String categoryType, String description) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    
+    // Get default color for category type
     private String getDefaultColor(String categoryType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if ("INCOME".equals(categoryType.toUpperCase())) {
+            return "#4CAF50";
+        } else {
+            return "#F44336";
+        }
     }
 }

@@ -46,7 +46,7 @@ public class TransactionService {
             transaction.setLocation(location);
             transaction.setNotes(notes != null ? notes.trim() : "");
             transaction.setCreatedDate(new java.util.Date());
-            transaction.setModifieldDate(new java.util.Date());
+            transaction.setModifiedDate(new java.util.Date());
             
             // Save transaction
             boolean created = transactionDAO.createTransaction(transaction);
@@ -94,7 +94,7 @@ public class TransactionService {
             }
             
             // Update modification date
-            transaction.setModifieldDate(new java.util.Date());
+            transaction.setModifiedDate(new java.util.Date());
             
             // Update transaction
             boolean updated = transactionDAO.updateTransaction(transaction);

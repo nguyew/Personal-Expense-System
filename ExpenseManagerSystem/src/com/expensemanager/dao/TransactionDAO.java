@@ -376,6 +376,11 @@ public class TransactionDAO {
         
         return stats;
     }
+    
+    // Get transaction by period
+    public List<Transaction> getTransactionsByPeriod (int userID, Date startDate, Date endDate) {
+        return getTransactionsByPeriod(userID, startDate, endDate);
+    }
 
    // Helper method to map ResultSet to Transaction
     private Transaction mapResultSetToTransaction(ResultSet rs) throws SQLException {

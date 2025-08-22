@@ -54,7 +54,7 @@ public class TransactionService {
             if (created) {
                 // Update budget tracking if this is an expense
                 if ("EXPENSE".equals(transactionType.toUpperCase())) {
-                    updateBudgetTracking();
+                    updateBudgetTracking(userID, categoryID, transactionDate);
                 }
                 
                 return ServiceResult.success(transaction, "Giao dịch đã được tạo thành công");
@@ -102,10 +102,16 @@ public class TransactionService {
             if (updated) {
                 // Update budget tracking if this is an expense
                 if ("EXPENSE".equals(transaction.getTransactionType())) {
-                    updateBudgetTracking(trans);
+                    updateBudgetTracking(transaction.getUserID(), transaction.getCategoryID(),
+                                        new Date(transaction.getTransactionDate().getTime()));
                 }
+                
+                return ServiceResult.success(transaction, "Giao dịch đã được cập nhật");
+            } else {
+                return ServiceResult.error("Không thể cập nhật giao dịch");
             }
         } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
     

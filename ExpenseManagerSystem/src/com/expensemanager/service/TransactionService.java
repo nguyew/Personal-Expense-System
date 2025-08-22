@@ -115,6 +115,38 @@ public class TransactionService {
         }
     }
     
+    // Delete transaction
+    public ServiceResult<Void> deleteTransaction (int transactionID, int userID) {
+        try {
+            // Check if transaction exists and belong to user
+            Transaction transaction = transactionDAO.getTransactionById(transactionID);
+            if (transaction == null) {
+                return ServiceResult.error("Không tìm thấy giao dịch");
+            }       
+            
+            if (transaction.getUserID() != userID) {
+                return ServiceResult.error("Bạn không có quyền xóa giao dịch này");
+            }
+            
+            // Delete transaction
+            boolean deleted = transactionDAO.deleteTransaction(transactionID);
+            
+            if (deleted) {
+                // Update budget tracking if this was an expense
+                if ("EXPENSE".equals(transaction.getTransactionType())) {
+                    updateBudgetTracking(userID, transaction.getTransactionID(), 
+                            new Date(transaction.getTransactionDate().getTime()));
+                }
+                
+                return ServiceResult.success("Giao dịch đã được xóa");
+            } else {
+                return ServiceResult.error("Không thể xóa giao dịch");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateTransactionData(int userID, int categoryID, double amount,
                                                        String transactionType, String description, Date transactionDate) {
         // Check user exists

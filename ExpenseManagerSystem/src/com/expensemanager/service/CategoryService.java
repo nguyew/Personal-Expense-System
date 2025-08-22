@@ -62,8 +62,35 @@ public class CategoryService {
         }
     }
 
-    private ServiceResult<Void> validateCategoryData(int userID, String categoryName, String categoryType, String description) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private ServiceResult<Void> validateCategoryData(int userID, String categoryName,
+                                                   String categoryType, String description) {
+        // Check user exists
+        User user  = userDAO.getUserById(userID);
+        if (user == null) {
+            return ServiceResult.error("Không tìm thấy tài khoản người dùng");
+        }
+        
+        // Validate category name
+        if (categoryName == null || categoryName.trim().isEmpty()) {
+            return ServiceResult.error("Tên danh mục không được để trống");
+        }
+        
+        if (categoryName.trim().length() > 100) {
+            return ServiceResult.error("Tống danh mục không được quá 100 ký tự");
+        }
+        
+        // Validate category type
+        if (categoryType == null ||
+            (categoryType.toUpperCase().equals("INCOME") && !categoryType.toUpperCase().equals("EXPENSE"))) {
+            return ServiceResult.error("Loại danh mục phải là INCOME hoặc EXPENSE");
+        }
+        
+        // validate description
+        if (description != null && description.trim().length() > 500) {
+            return ServiceResult.error("Mô tả không được quá 500 ký tư");
+        }
+        
+        return ServiceResult.success("Dữ liệu hợp lệ");
     }
     
     // Get default color for category type

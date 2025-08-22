@@ -14,7 +14,7 @@ public class Transaction {
     private String location;
     private String notes;
     private Date createdDate;
-    private Date modifieldDate;
+    private Date modifiedDate;
     
     // Additional fields for join queries
     private String categoryName;
@@ -23,10 +23,10 @@ public class Transaction {
     
     public Transaction () {
         this.createdDate = new Date();
-        this.modifieldDate = new Date();
+        this.modifiedDate = new Date();
     }
 
-    public Transaction(int transactionID, int userID, int categoryID, double amount, String transactionType, String description, Date transactionDate, String location, String notes, Date createdDate, Date modifieldDate, String categoryName, String categoryColor, String userName) {
+    public Transaction(int transactionID, int userID, int categoryID, double amount, String transactionType, String description, Date transactionDate, String location, String notes, Date createdDate, Date modifiedDate, String categoryName, String categoryColor, String userName) {
         this.transactionID = transactionID;
         this.userID = userID;
         this.categoryID = categoryID;
@@ -37,7 +37,7 @@ public class Transaction {
         this.location = location;
         this.notes = notes;
         this.createdDate = createdDate;
-        this.modifieldDate = modifieldDate;
+        this.modifiedDate = modifiedDate;
         this.categoryName = categoryName;
         this.categoryColor = categoryColor;
         this.userName = userName;
@@ -123,12 +123,12 @@ public class Transaction {
         this.createdDate = createdDate;
     }
 
-    public Date getModifieldDate() {
-        return modifieldDate;
+    public Date getModifiedDate() {
+        return modifiedDate;
     }
 
-    public void setModifieldDate(Date modifieldDate) {
-        this.modifieldDate = modifieldDate;
+    public void setModifiedDate(Date modifieldDate) {
+        this.modifiedDate = modifieldDate;
     }
 
     public String getCategoryName() {

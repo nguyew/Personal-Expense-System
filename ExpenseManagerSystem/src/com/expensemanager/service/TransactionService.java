@@ -147,6 +147,27 @@ public class TransactionService {
         }
     }
     
+    // Get transactions by period
+    public ServiceResult<List<Transaction>> getTransactionsByPeriod(int userID, Date startDate, Date endDate) {
+        try {
+            if (startDate == null || endDate == null) {
+                return ServiceResult.error("Ngày bắt đầu và kết thúc không được để trống");
+            }
+            
+            if (startDate.after(endDate)) {
+                return ServiceResult.error("Ngày bắt đầu không thể sau ngày kết thúc");
+            }
+            
+            List<Transaction> transactions = transactionDAO.getTransactionsByPeriod(userID, startDate, endDate);
+            
+            return ServiceResult.success(transactions, "Lấy danh sách giao dịch thành công");
+            
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+    
     private ServiceResult<Void> validateTransactionData(int userID, int categoryID, double amount,
                                                        String transactionType, String description, Date transactionDate) {
         // Check user exists

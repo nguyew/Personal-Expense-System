@@ -63,10 +63,52 @@ public class TransactionService {
             }
         } catch (Exception e) {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
-        }
-        
+        }   
     }
-
+    
+    // Update existing transaction
+    public ServiceResult<Transaction> updateTransaction (Transaction transaction) {
+        try {
+            // Validate input data
+            ServiceResult<Void> validation = validateTransactionData(
+                    transaction.getUserID(),
+                    transaction.getCategoryID(),
+                    transaction.getAmount(),
+                    transaction.getTransactionType(),
+                    transaction.getDescription(),
+                    new Date(transaction.getTransactionDate().getTime())
+            );
+            
+            if (!validation.isSuccess()) {
+                return ServiceResult.error(validation.getMessage());
+            }
+            
+            // Check if transaction exists and belong to user
+            Transaction existingTransaction = transactionDAO.getTransactionById(transaction.getTransactionID());
+            if (existingTransaction == null) {
+                return ServiceResult.error("Không tìm thấy giao dịch");
+            }
+            
+            if (existingTransaction.getUserID() != transaction.getUserID()) {
+                return ServiceResult.error("Bạn không có quyền sử dung giao dịch này");
+            }
+            
+            // Update modification date
+            transaction.setModifieldDate(new java.util.Date());
+            
+            // Update transaction
+            boolean updated = transactionDAO.updateTransaction(transaction);
+            
+            if (updated) {
+                // Update budget tracking if this is an expense
+                if ("EXPENSE".equals(transaction.getTransactionType())) {
+                    updateBudgetTracking(trans);
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+    
     private ServiceResult<Void> validateTransactionData(int userID, int categoryID, double amount,
                                                        String transactionType, String description, Date transactionDate) {
         // Check user exists
@@ -135,7 +177,16 @@ public class TransactionService {
         return ServiceResult.success("Dữ liệu hợp lệ");
     }
 
-    private void updateBudgetTracking() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private void updateBudgetTracking(int userID, int categoryID, Date transactionDate) {
+        try {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(transactionDate);
+            int month = cal.get(Calendar.MONTH) + 1;
+            int year = cal.get(Calendar.YEAR);
+            
+            budgetDAO.getBudgetsByUserAndPeriod(userID, month, year);
+        } catch (Exception e) {
+            System.err.println("Warning: Could not update budget tracking: " + e.getMessage());
+        }
     }
 }

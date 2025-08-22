@@ -61,7 +61,61 @@ public class CategoryService {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
-
+    
+    // Update existing category
+    public ServiceResult<Category> updateCategory (Category category) {
+        try {
+            // Validate input data
+            ServiceResult<Void> validation = validateCategoryData(
+                category.getUserID(),
+                category.getCategoryName(),
+                category.getCategoryType(),
+                category.getDescription()
+            );
+            
+            if (!validation.isSuccess()) {
+                return ServiceResult.error(validation.getMessage());
+            }
+            
+            // Check if category exists and belongs to user
+            Category existingCategory = categoryDAO.getCategoryById(category.getCategoryID());
+            if (existingCategory == null) {
+                return ServiceResult.error("Không tìm thấy danh mục");
+            }
+            
+            if (existingCategory.getUserID() != category.getUserID() && !existingCategory.isDefault()) {
+                return ServiceResult.error("Bạn không có quyền sửa danh mục này");
+            }
+            
+            // Don't allow editing default categories
+            if (existingCategory.isDefault()) {
+                return ServiceResult.error("Không thể sửa danh mục mặc đinh6");
+            }
+            
+            // Check if new name conflicts with existing categories (except current one)
+            List<Category> existingCategories = categoryDAO.getCategoriesByUserAndType(
+                category.getUserID(), category.getCategoryType());
+            for (Category cat : existingCategories) {
+                if (cat.getCategoryID() != category.getCategoryID() &&
+                    cat.getCategoryName().equalsIgnoreCase(category.getCategoryName().trim())) {
+                    return ServiceResult.error("Danh mục '" + category.getCategoryName() + "' đã tồn tại");
+                }
+            }
+            
+            // Update category
+            boolean updated = categoryDAO.updateCategory(category);
+            
+            if (updated) {
+                return ServiceResult.success(category, "Danh mục đã được cập nhật");
+            } else {
+                return ServiceResult.error("Không thể cập nhật danh mục");
+            }
+            
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+ 
     private ServiceResult<Void> validateCategoryData(int userID, String categoryName,
                                                    String categoryType, String description) {
         // Check user exists
@@ -90,7 +144,7 @@ public class CategoryService {
             return ServiceResult.error("Mô tả không được quá 500 ký tư");
         }
         
-        return ServiceResult.success("Dữ liệu hợp lệ");
+        return ServiceResult.success("Dữ liệu hợp lệ"); 
     }
     
     // Get default color for category type

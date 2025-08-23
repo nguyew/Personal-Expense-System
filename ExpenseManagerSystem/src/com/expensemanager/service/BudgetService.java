@@ -121,7 +121,13 @@ public class BudgetService {
         return ServiceResult.success("Dữ liêu hợp lệ");
     }
 
-    private double calculateSpentAmount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private double calculateSpentAmount(int userID, int categoryID, int month, int year) { {
+        try {
+            return transactionDAO.getTotalExpenseByCategory(userID, categoryID, month, year);
+        } catch (Exception e) {
+            System.err.println("Warning: Could not calculate spent amount: " + e.getMessage());
+            return 0.0;
+        }
+        }
     }
 }

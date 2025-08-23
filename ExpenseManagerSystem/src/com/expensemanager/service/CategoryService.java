@@ -141,8 +141,15 @@ public class CategoryService {
             }
             
             // Delete category
+            boolean deleted = categoryDAO.deleteCategory(categoryID);
             
+            if (deleted) {
+                return ServiceResult.success("Danh mục đã được xóa");
+            } else {
+                return ServiceResult.error("Không thể xóa danh mục");
+            }
         } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
  

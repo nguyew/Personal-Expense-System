@@ -1,4 +1,4 @@
-package com.expensemanager.service;
+package com.expensemanager.service.category;
 
 import com.expensemanager.model.Category;
 import com.expensemanager.util.CurrencyUtils;

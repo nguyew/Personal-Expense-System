@@ -1,8 +1,9 @@
-package com.expensemanager.service;
+package com.expensemanager.service.category;
 
 import com.expensemanager.dao.*;
 import com.expensemanager.model.Category;
 import com.expensemanager.model.User;
+import com.expensemanager.service.ServiceResult;
 import java.util.*;
 
 public class CategoryService {

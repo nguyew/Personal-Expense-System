@@ -1,5 +1,7 @@
 package com.expensemanager;
 
+import com.expensemanager.service.user.UserDashboard;
+import com.expensemanager.service.user.UserService;
 import com.expensemanager.service.*;
 import com.expensemanager.model.User;
 import com.expensemanager.dao.DatabaseConnection;

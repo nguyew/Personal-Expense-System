@@ -1,4 +1,4 @@
-package com.expensemanager.service;
+package com.expensemanager.service.user;
 
 import com.expensemanager.model.*;
 import java.util.List;

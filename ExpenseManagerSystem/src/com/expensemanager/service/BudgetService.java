@@ -72,8 +72,53 @@ public class BudgetService {
         }
     }
 
-    private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, int month, int year, double alertThreshold) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
+                                                 int month, int year, double alertThreshold) {
+        // Check user exists
+        User user = userDAO.getUserById(userID);
+        if (user == null) {
+            return ServiceResult.error("Không tìm thấy tài khoản người dùng");
+        }
+        
+        // Check category exists and belongs to user or is default
+        Category category = categoryDAO.getCategoryById(categoryID);
+        if (category == null) {
+            return ServiceResult.error("Không tìm thấy danh mục");
+        }
+        
+        if (category.getUserID() != userID && !category.isDefault()) {
+            return ServiceResult.error("Bạn không có quyền sử dụng mục này");
+        }
+        
+        // Only allows expense categories for budget
+        if (!"EXPENSE".equals(category.getCategoryType())) {
+            return ServiceResult.error("Chỉ có thể tạo danh sách cho danh mục chi tiêu");
+        }
+        
+        // Validate budget amount
+        if (budgetAmount <= 0) {
+            return ServiceResult.error("Số tiền ngân sách phải lớn hơn 0");
+        }
+        
+        if (budgetAmount > 999999999999.99) { // ~1 trillion VNĐ
+            return ServiceResult.error("Số tiền ngân sách quá lớn");
+        }
+        
+        // Validate month and year
+        if (month < 1 || month > 12) {
+            return ServiceResult.error("Tháng phải từ 1 đến 12");
+        }
+        
+        if (year < 2020 || year > 2050) {
+            return ServiceResult.error("Năm không hợp lệ");
+        }
+        
+        // Validate alert threshold 
+        if (alertThreshold < 0 || alertThreshold > 100) {
+            return ServiceResult.error("Ngưỡng cảnh báo phải từ 0% đến 100%");
+        }
+        
+        return ServiceResult.success("Dữ liêu hợp lệ");
     }
 
     private double calculateSpentAmount() {

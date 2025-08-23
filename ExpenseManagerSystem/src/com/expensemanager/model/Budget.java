@@ -177,7 +177,7 @@ public class Budget {
     }
     
     public String getFormattedCurrentSpent () {
-        return String.format("%,. 0f VNĐ", currentSpent);
+        return String.format("%,.0f VNĐ", currentSpent);
     }
     
     public String getFormattedRemainingAmount() {

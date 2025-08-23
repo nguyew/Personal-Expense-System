@@ -34,7 +34,7 @@ public class BudgetService {
             }
             
             // Check if budget already exists for this categpry and period
-            Budget existingBudget = budgetDAO.getBudgetByCategoryAndPeriod(userID, categoryID, month, year);
+            Budget existingBudget = budgetDAO.getBudgetByCategory(userID, categoryID, month, year);
             if (existingBudget != null) {
                 return ServiceResult.error("Ngân sách cho danh mục này trong tháng " + month + "/" + year + " đã tồn tại");
             }
@@ -51,7 +51,7 @@ public class BudgetService {
             budget.setModifiedDate(new Date());
             
             // Calculate current amount
-            double currentSpent = calculateSpentAmount();
+            double currentSpent = calculateSpentAmount(userID, categoryID, month, year);
             budget.setCurrentSpent(currentSpent);
             budget.updateStatus();
             
@@ -121,13 +121,12 @@ public class BudgetService {
         return ServiceResult.success("Dữ liêu hợp lệ");
     }
 
-    private double calculateSpentAmount(int userID, int categoryID, int month, int year) { {
+    private double calculateSpentAmount(int userID, int categoryID, int month, int year) { 
         try {
             return transactionDAO.getTotalExpenseByCategory(userID, categoryID, month, year);
         } catch (Exception e) {
             System.err.println("Warning: Could not calculate spent amount: " + e.getMessage());
             return 0.0;
-        }
         }
     }
 }

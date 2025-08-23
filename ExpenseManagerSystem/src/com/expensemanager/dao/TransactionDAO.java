@@ -404,6 +404,35 @@ public class TransactionDAO {
         return 0;
     }
     
+    // Get total expense by category
+    public double getTotalExpenseByCategory(int userID, int categoryID, int month, int year) {
+        String sql = "SELECT ISNULL(SUM(Amount), 0) as TotalAmount " +
+                    "FROM Transactions " +
+                    "WHERE UserID = ? AND CategoryID = ? AND TransactionType = 'EXPENSE' " +
+                    "AND MONTH(TransactionDate) = ? AND YEAR(TransactionDate) = ?";
+
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userID);
+            pstmt.setInt(2, categoryID);
+            pstmt.setInt(3, month);
+            pstmt.setInt(4, year);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("TotalAmount");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getting total expense by category: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0.0;
+    }
+    
    // Helper method to map ResultSet to Transaction
     private Transaction mapResultSetToTransaction(ResultSet rs) throws SQLException {
         Transaction transaction = new Transaction();

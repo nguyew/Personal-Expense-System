@@ -381,7 +381,29 @@ public class TransactionDAO {
     public List<Transaction> getTransactionsByPeriod (int userID, Date startDate, Date endDate) {
         return getTransactionsByDateRange(userID, startDate, endDate);
     }
-
+    
+    // Get count of transactions by category
+    public int getTransactionCountByCategory (int categoryID) {
+        String sql = "SELECT COUNT(*) FROM Transactions WHERE CategoryID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, categoryID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting transaction count by category: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
+    
    // Helper method to map ResultSet to Transaction
     private Transaction mapResultSetToTransaction(ResultSet rs) throws SQLException {
         Transaction transaction = new Transaction();

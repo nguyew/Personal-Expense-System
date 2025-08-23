@@ -172,7 +172,7 @@ public class CategoryService {
         
         // Validate category type
         if (categoryType == null ||
-            (categoryType.toUpperCase().equals("INCOME") && !categoryType.toUpperCase().equals("EXPENSE"))) {
+            (!categoryType.toUpperCase().equals("INCOME") && !categoryType.toUpperCase().equals("EXPENSE"))) {
             return ServiceResult.error("Loại danh mục phải là INCOME hoặc EXPENSE");
         }
         

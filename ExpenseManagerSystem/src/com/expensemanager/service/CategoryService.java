@@ -89,7 +89,7 @@ public class CategoryService {
             
             // Don't allow editing default categories
             if (existingCategory.isDefault()) {
-                return ServiceResult.error("Không thể sửa danh mục mặc đinh6");
+                return ServiceResult.error("Không thể sửa danh mục mặc định");
             }
             
             // Check if new name conflicts with existing categories (except current one)
@@ -167,7 +167,7 @@ public class CategoryService {
         }
         
         if (categoryName.trim().length() > 100) {
-            return ServiceResult.error("Tống danh mục không được quá 100 ký tự");
+            return ServiceResult.error("Tổng danh mục không được quá 100 ký tự");
         }
         
         // Validate category type
@@ -178,7 +178,7 @@ public class CategoryService {
         
         // validate description
         if (description != null && description.trim().length() > 500) {
-            return ServiceResult.error("Mô tả không được quá 500 ký tư");
+            return ServiceResult.error("Mô tả không được quá 500 ký tự");
         }
         
         return ServiceResult.success("Dữ liệu hợp lệ"); 

@@ -379,7 +379,7 @@ public class TransactionDAO {
     
     // Get transaction by period
     public List<Transaction> getTransactionsByPeriod (int userID, Date startDate, Date endDate) {
-        return getTransactionsByPeriod(userID, startDate, endDate);
+        return getTransactionsByDateRange(userID, startDate, endDate);
     }
 
    // Helper method to map ResultSet to Transaction

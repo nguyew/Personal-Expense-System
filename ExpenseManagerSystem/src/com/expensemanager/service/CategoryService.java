@@ -115,6 +115,36 @@ public class CategoryService {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
+    
+    // Delete category
+    public ServiceResult<Void> deleteCategory (int categoryID, int userID) {
+        try {
+            // Check if category exists and belongs to user
+            Category category = categoryDAO.getCategoryById(categoryID);
+            if (category == null) {
+                return ServiceResult.error("Không tìm thấy danh mục");
+            }
+            
+            if (category.getUserID() != userID && !category.isDefault()) {
+                return ServiceResult.error("Bạn không có quyền xóa danh mục này");
+            }
+            
+            // Do not allow deleting default categories
+            if (category.isDefault()) {
+                return ServiceResult.error("Không thể xóa danh mục mặc định");
+            }
+            
+            // Check if category is being used in transactions
+            int transactionCount = transactionDAO.getTransactionCountByCategory(categoryID);
+            if (transactionCount > 0) {
+                return ServiceResult.error("Không thể xóa danh mục đang có " + transactionCount + " giao dịch");
+            }
+            
+            // Delete category
+            
+        } catch (Exception e) {
+        }
+    }
  
     private ServiceResult<Void> validateCategoryData(int userID, String categoryName,
                                                    String categoryType, String description) {

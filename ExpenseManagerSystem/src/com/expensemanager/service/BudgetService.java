@@ -183,6 +183,40 @@ public class BudgetService {
         }
     }
     
+    // Get budget alerts for current period
+    public ServiceResult<List<Budget>> getBudgetAlerts (int userID) {
+        try {
+            int currentMonth = DateUtils.getCurrentMonth();
+            int currentYear = DateUtils.getCurrentYear();
+            
+            List<Budget> allBudgets = budgetDAO.getBudgetsByUserAndPeriod(userID, currentMonth, currentYear);
+            List<Budget> alerts = new ArrayList<>();
+            
+            // Filter budgets that have alerts (WARNING or EXCEED)
+            for (Budget budget : allBudgets) {
+                double currentSpent = calculateSpentAmount(userID, budget.getCategoryID(), currentMonth, currentYear);
+                budget.setCurrentSpent(currentSpent);
+                budget.updateStatus();
+                
+                if ("WARNING".equals(budget.getStatus()) || "EXCEEDED".equals(budget.getStatus())) {
+                    // Get category name
+                    Category category = categoryDAO.getCategoryById(budget.getCategoryID());
+                    budget.setCategoryName(category.getCategoryName());
+                    alerts.add(budget);
+                }
+            }
+            
+            // Sort by severity (EXCEED first)
+            alerts.sort((b1, b2) -> getStatusPriority(b2.getStatus()) - getStatusPriority(b1.getStatus()));
+            
+            return ServiceResult.success(alerts, "Lấy danh sách cảnh báo ngân sách thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
+    
+    
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {
         // Check user exists

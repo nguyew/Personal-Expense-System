@@ -215,6 +215,50 @@ public class BudgetService {
         }
     }
     
+    // Get budget summary for a period
+    public ServiceResult<BudgetSummary> getBudgetSummary (int userID, int month, int year) {
+        try {
+            List<Budget> budgets = budgetDAO.getBudgetsByUserAndPeriod(userID, month, year);
+            
+            BudgetSummary summary = new BudgetSummary();
+            summary.setMonth(month);
+            summary.setYear(year);
+            summary.setTotalBudgets(budgets.size());
+            
+            double totalBudgetAmount = 0;
+            double totalSpentAmount = 0;
+            int warningCount = 0;
+            int exceededCount = 0;
+            
+            for (Budget budget : budgets) {
+                double currentSpent = calculateSpentAmount(userID, budget.getCategoryID(), month, year);
+                budget.setCurrentSpent(currentSpent);
+                budget.updateStatus();
+                
+                totalBudgetAmount += budget.getBudgetAmount();
+                totalSpentAmount += currentSpent;
+                
+                switch (budget.getStatus()) {
+                    case "WARNING":
+                        warningCount++;
+                        break;
+                    case "EXCEEDED":
+                        exceededCount++;
+                        break;
+                }
+            }
+            
+            summary.setTotalBudgetAmount(totalBudgetAmount);
+            summary.setTotalSpentAmount(totalSpentAmount);
+            summary.setWarningCount(warningCount);
+            summary.setExceededCount(exceededCount);
+            summary.setOkCount(budgets.size() - warningCount - exceededCount);
+            
+            return ServiceResult.success(summary, "Lấy tổng hợp ngân sách thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
     
     
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 

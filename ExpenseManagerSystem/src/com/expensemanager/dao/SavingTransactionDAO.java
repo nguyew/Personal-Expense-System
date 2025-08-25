@@ -62,6 +62,30 @@ public class SavingTransactionDAO {
         return null;
     }
     
+    // Get saving transaction by saving ID
+    public List<SavingTransaction> getSavingTransactionsBySaving (int savingID) {
+        List<SavingTransaction> transactions = new ArrayList<>();
+        String sql = "SELECT * FROM SavingTransactions WHERE SavingID = ? ORDER BY TransactionDate DESC, CreatedDate DESC";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(mapResultSetToSavingTransaction(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting saving transactions by saving: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return transactions;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

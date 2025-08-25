@@ -151,6 +151,38 @@ public class BudgetService {
         }
     }
     
+    // Get all budget for a user in specific period
+    public ServiceResult<List<Budget>> getBudgetByPeriod (int userID, int month, int year) {
+        try {
+            List<Budget> budgets = budgetDAO.getBudgetsByUserAndPeriod(userID, month, year);
+            
+            // Update spent amounts and status for all budgets
+            for (Budget budget : budgets) {
+                double currentSpent = calculateSpentAmount(userID, budget.getCategoryID(), month, year);
+                budget.setCurrentSpent(currentSpent);
+                budget.updateStatus();
+                
+                // Get category name
+                Category category = categoryDAO.getCategoryById(budget.getCategoryID());
+                budget.setCategoryName(category.getCategoryName());
+            }
+            
+            // Sort by status (alerts first) and then by budget amount
+            budgets.sort((b1, b2) -> {
+                // Status priority: EXCEEDED > WARNING > OK
+                int statusCompare = getStatusPriority(b2.getStatus()) - getStatusPriority(b1.getStatus());
+                if (statusCompare != 0) return statusCompare;
+                
+                // Then by budget amount descending
+                return Double.compare(b2.getBudgetAmount(), b1.getBudgetAmount());
+            });
+            
+            return ServiceResult.success(budgets, "Lấy danh sách ngân sách thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {
         // Check user exists
@@ -206,6 +238,15 @@ public class BudgetService {
         } catch (Exception e) {
             System.err.println("Warning: Could not calculate spent amount: " + e.getMessage());
             return 0.0;
+        }
+    }
+
+    private int getStatusPriority(String status) {
+        switch (status) {
+            case "EXCEED": return 3;
+            case "WARNING": return 2;
+            case "OK": return 1;
+            default: return 0;
         }
     }
 }

@@ -71,7 +71,60 @@ public class BudgetService {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
-
+    
+    // Update existing budget
+    public ServiceResult<Budget> updateBudget (Budget budget) {
+        try {
+            // Validate input data
+            ServiceResult<Void> validation = validateBudgetData(
+                    budget.getUserID(),
+                    budget.getCategoryID(),
+                    budget.getBudgetAmount(),
+                    budget.getMonth(),
+                    budget.getYear(),
+                    budget.getAlertThreshold()
+            );
+            
+            if (!validation.isSuccess()) {
+                return ServiceResult.error(validation.getMessage());
+            }
+            
+            // Check if budget exists and belongs to user
+            Budget existingBudget = budgetDAO.getBudgetById(budget.getBudgetID());
+            if (existingBudget == null) {
+                return ServiceResult.error("Không tìm thấy ngân sách");
+            }
+            
+            if (existingBudget.getUserID() != budget.getUserID()) {
+                return ServiceResult.error("Bạn không có quyền sửa ngân sách này");
+            }
+            
+            // Update modification date
+            budget.setModifiedDate(new Date());
+            
+            // Recalculate current spent and status
+            double currentSpent = calculateSpentAmount(budget.getUserID(), budget.getCategoryID(),
+                                                     budget.getMonth(), budget.getYear());
+            budget.setCurrentSpent(currentSpent);
+            budget.updateStatus();
+            
+            // Update budget
+            boolean updated = budgetDAO.updateBudget(budget);
+            
+            if (updated) {
+                // Get category name for response
+                Category category = categoryDAO.getCategoryById(budget.getCategoryID());
+                budget.setCategoryName(category.getCategoryName());
+                
+                return ServiceResult.success(budget, "ngân sách đã được cập nhật");
+            } else {
+                return ServiceResult.error("Không thể cập nhật danh sách");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {
         // Check user exists

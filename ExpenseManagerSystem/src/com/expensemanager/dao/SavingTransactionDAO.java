@@ -112,6 +112,31 @@ public class SavingTransactionDAO {
         return transactions;
     }
     
+    // Get saving transction by type
+    public List<SavingTransaction> getSavingTransactionByType (int savingID, String transactionType) {
+        List<SavingTransaction> transactions = new ArrayList<>();
+        String sql = "SELECT * FROM SavingTransactions WHERE SavingID = ? AND TransactionType = ? ORDER BY TransactionDate DESC";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            pstmt.setString(2, transactionType);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(mapResultSetToSavingTransaction(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting saving transactions by type: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return transactions;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

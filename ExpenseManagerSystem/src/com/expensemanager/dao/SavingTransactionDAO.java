@@ -86,6 +86,32 @@ public class SavingTransactionDAO {
         return transactions;
     }
     
+    // Get saving transactions by date range
+    public List<SavingTransaction> getSavingTransactionsByDateRange (int savingID, Date startDate, Date endDate) {
+        List<SavingTransaction> transactions = new ArrayList<>();
+        String sql = "SELECT * FROM SavingTransactions WHERE SavingID = ? AND TransactionDate BETWEEN ? AND ? ORDER BY TransactionDate DESC";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            pstmt.setDate(2, new Date(startDate.getTime()));
+            pstmt.setDate(3, new Date(endDate.getTime()));
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(mapResultSetToSavingTransaction(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting saving transactions by date range: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return transactions;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

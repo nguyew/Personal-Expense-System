@@ -1,4 +1,4 @@
-package com.expensemanager.service;
+package com.expensemanager.service.budget;
 
 import com.expensemanager.util.*;
 

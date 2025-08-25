@@ -73,6 +73,39 @@ public class SavingTransactionDAO {
         transaction.setTransactionDate(rs.getDate("TransactionDate"));
         transaction.setCreatedDate(rs.getTimestamp("CreatedDate"));
         return transaction;
-        
     }
+    
+    // Inner class for transaction summary
+    public static class SavingTransactionSummary {
+        private int savingID;
+        private int totalTransactions;
+        private int totalDeposits;
+        private int totalWithdrawals;
+        private double totalDepositAmount;
+        private double totalWithdrawalAmount;
+        
+        // Getters and Setters
+        public int getSavingID() { return savingID; }
+        public void setSavingID(int savingID) { this.savingID = savingID; }
+        
+        public int getTotalTransactions() { return totalTransactions; }
+        public void setTotalTransactions(int totalTransactions) { this.totalTransactions = totalTransactions; }
+        
+        public int getTotalDeposits() { return totalDeposits; }
+        public void setTotalDeposits(int totalDeposits) { this.totalDeposits = totalDeposits; }
+        
+        public int getTotalWithdrawals() { return totalWithdrawals; }
+        public void setTotalWithdrawals(int totalWithdrawals) { this.totalWithdrawals = totalWithdrawals; }
+        
+        public double getTotalDepositAmount() { return totalDepositAmount; }
+        public void setTotalDepositAmount(double totalDepositAmount) { this.totalDepositAmount = totalDepositAmount; }
+        
+        public double getTotalWithdrawalAmount() { return totalWithdrawalAmount; }
+        public void setTotalWithdrawalAmount(double totalWithdrawalAmount) { this.totalWithdrawalAmount = totalWithdrawalAmount; }
+        
+        public double getNetAmount() {
+            return totalDepositAmount - totalWithdrawalAmount;
+        }
+    }
+        
 }

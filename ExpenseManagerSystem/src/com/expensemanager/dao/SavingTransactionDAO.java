@@ -61,8 +61,18 @@ public class SavingTransactionDAO {
         
         return null;
     }
-
-    private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
+    // Helper method to map ResultSet to SavingTransaction
+    private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
+        SavingTransaction transaction = new SavingTransaction();
+        transaction.setSavingTransactionID(rs.getInt("SavingTransactionID"));
+        transaction.setSavingID(rs.getInt("SavingID"));
+        transaction.setAmount(rs.getDouble("Amount"));
+        transaction.setTransactionType(rs.getString("TransactionType"));
+        transaction.setDescription(rs.getString("Description"));
+        transaction.setTransactionDate(rs.getDate("TransactionDate"));
+        transaction.setCreatedDate(rs.getTimestamp("CreatedDate"));
+        return transaction;
+        
     }
 }

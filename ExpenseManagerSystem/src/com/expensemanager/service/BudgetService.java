@@ -125,6 +125,32 @@ public class BudgetService {
         }
     }
     
+    // Delete budget
+    public ServiceResult<Void> deleteBudget (int budgetID, int userID) {
+        try {
+            // Check if budget exists and belongs to user
+            Budget budget = budgetDAO.getBudgetById(budgetID);
+            if (budget == null) {
+                return ServiceResult.error("Không tìm thấy ngân sách");
+            }
+            
+            if (budget.getUserID() != userID) {
+                return ServiceResult.error("Bạn không quyền xóa ngân sách này");
+            }
+            
+            // Delete budget
+            boolean deleted = budgetDAO.deleteBudget(budgetID);
+            
+            if (deleted) {
+                return ServiceResult.success("Ngân sách đã được xóa");
+            } else {
+                return ServiceResult.error("Không thể xóa ngân sách");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {
         // Check user exists
@@ -173,7 +199,7 @@ public class BudgetService {
         
         return ServiceResult.success("Dữ liêu hợp lệ");
     }
-
+    
     private double calculateSpentAmount(int userID, int categoryID, int month, int year) { 
         try {
             return transactionDAO.getTotalExpenseByCategory(userID, categoryID, month, year);

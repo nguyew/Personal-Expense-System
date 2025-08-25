@@ -198,6 +198,29 @@ public class SavingTransactionDAO {
         return 0.0;
     }
     
+    // Get total  withdrawals for a saving
+    public double getTotalWithdrawals (int savingID) {
+        String sql = "SELECT ISNULL(SUM(Amount), 0) as TotalWithdrawals FROM SavingTransactions WHERE SavingID = ? AND TransactionType = 'WITHDRAW'";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("TotalWithdrawals");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting total withdrawals: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0.0;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

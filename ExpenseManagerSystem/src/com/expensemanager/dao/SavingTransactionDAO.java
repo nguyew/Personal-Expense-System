@@ -176,6 +176,28 @@ public class SavingTransactionDAO {
         return false;
     }
     
+    // Get total deposits for a saving
+    public double getTotalDeposits (int savingID) {
+        String sql = "SELECT ISNULL(SUM(Amount), 0) as TotalDeposits FROM SavingTransactions WHERE SavingID = ? AND TransactionType = 'DEPOSIT'";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("TotalDeposits");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting total deposits: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0.0;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

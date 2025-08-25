@@ -38,4 +38,31 @@ public class SavingTransactionDAO {
         
         return false;
     }
+    
+    // Get saving transaction by ID
+    public SavingTransaction getSavingTransactionById (int savingTransactionID) {
+        String sql = "SELECT * FROM SavingTransactions WHERE SavingTransactionID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingTransactionID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToSavingTransaction(rs);
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting saving transaction by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+
+    private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

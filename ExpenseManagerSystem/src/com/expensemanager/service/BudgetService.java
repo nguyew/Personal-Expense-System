@@ -319,6 +319,47 @@ public class BudgetService {
         }
     }
     
+    // Suggest budget amounts based on historical ending
+    public ServiceResult<Map<Integer, Double>> suggestBudgetAmounts (int userID, int month, int year) {
+        try {
+            // Get expense categories for user
+            List<Category> expenseCategories = categoryDAO.getCategoriesByUserAndType(userID, "EXPENSE");
+            Map<Integer, Double> suggestions = new HashMap<>();
+            
+            // Look at last 3 months spending for each category
+            for (Category category : expenseCategories) {
+                double totalSpent = 0;
+                int monthsWithData = 0;
+                
+                for (int i = 1; i <= 3; i++) {
+                    int checkMonth = month - i;
+                    int checkYear = year;
+                    if (checkMonth <= 0) {
+                        checkMonth += 12;
+                        checkYear--;
+                    }
+                    
+                    double monthSpent = calculateSpentAmount(userID, category.getCategoryID(), checkMonth, checkYear);
+                    if (monthSpent > 0) {
+                        totalSpent += monthSpent;
+                        monthsWithData++;
+                    }
+                }
+                
+                if (monthsWithData > 0) {
+                    double averageSpent = totalSpent / monthsWithData;
+                    // Suggest 10% more than average spending
+                    double suggestedBudget = averageSpent * 1.1;
+                    suggestions.put(category.getCategoryID(), suggestedBudget);
+;                }
+            }
+            
+            return ServiceResult.success(suggestions, "Đã tạo gợi ý ngân sách dựa trên lịch sử chi tiêu");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {
         // Check user exists

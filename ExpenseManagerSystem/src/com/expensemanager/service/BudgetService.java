@@ -260,6 +260,64 @@ public class BudgetService {
         }
     }
     
+    // Create budget from previous month
+    public ServiceResult<List<Budget>> copyBudgetFromPreviousMonth (int userID, int targetMonth, int targetYear) {
+        try {
+            // Calculate previous month
+            int prevMonth = targetMonth - 1;
+            int prevYear = targetYear;
+            if (prevMonth <= 0) {
+                prevMonth = 12;
+                prevYear--;
+            }
+            
+            // Get budgets from previous month
+            List<Budget> previousBudgets = budgetDAO.getBudgetsByUserAndPeriod(userID, prevMonth, prevYear);
+            if (previousBudgets.isEmpty()) {
+                return ServiceResult.error("Không tìm thấy ngân sách tháng trước để sao chép");
+            }
+            
+            // Check if target month already has budgets
+            List<Budget> existingBudgets = budgetDAO.getBudgetsByUserAndPeriod(userID, targetMonth, targetYear);
+            if (!existingBudgets.isEmpty()) {
+                return ServiceResult.error("Tháng " + targetMonth + "/" + targetYear);
+            }
+            
+            List<Budget> newBudgets = new ArrayList<>();
+            
+            // Create new budgets based on previous month
+            for (Budget prevBudget : previousBudgets) {
+                Budget newBudget = new Budget();
+                newBudget.setUserID(userID);
+                newBudget.setCategoryID(prevBudget.getCategoryID());
+                newBudget.setBudgetAmount(prevBudget.getBudgetAmount());
+                newBudget.setMonth(targetMonth);
+                newBudget.setYear(targetYear);
+                newBudget.setAlertThreshold(prevBudget.getAlertThreshold());
+                newBudget.setCreatedDate(new Date());
+                newBudget.setModifiedDate(new Date());
+                newBudget.setCurrentSpent(0.0); // New month, no spending yet
+                newBudget.setStatus("OK");
+                
+                boolean created = budgetDAO.createBudget(newBudget);
+                if (created) {
+                    // Get category name
+                    Category category = categoryDAO.getCategoryById(newBudget.getCategoryID());
+                    newBudget.setCategoryName(category.getCategoryName());
+                    newBudgets.add(newBudget);
+                }
+            }
+            
+            if (newBudgets.isEmpty()) {
+                return ServiceResult.error("Không thể sao chép ngân sách");
+            }
+            
+            return ServiceResult.success(newBudgets,
+                    "Đã sao chép " + newBudgets.size() + " ngân sách từ tháng " + prevMonth + "/" + prevYear);
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
     
     private ServiceResult<Void> validateBudgetData(int userID, int categoryID, double budgetAmount, 
                                                  int month, int year, double alertThreshold) {

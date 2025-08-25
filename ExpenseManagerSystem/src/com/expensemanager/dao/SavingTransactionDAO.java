@@ -221,6 +221,41 @@ public class SavingTransactionDAO {
         return 0.0;
     }
     
+    // Get transaction summary for a saving
+    public SavingTransactionSummary getTransactionSummary (int savingID) {
+        String sql = "SELECT " +
+                    "COUNT(*) as TotalTransactions, " +
+                    "COUNT(CASE WHEN TransactionType = 'DEPOSIT' THEN 1 END) as TotalDeposits, " +
+                    "COUNT(CASE WHEN TransactionType = 'WITHDRAW' THEN 1 END) as TotalWithdrawals, " +
+                    "ISNULL(SUM(CASE WHEN TransactionType = 'DEPOSIT' THEN Amount ELSE 0 END), 0) as TotalDepositAmount, " +
+                    "ISNULL(SUM(CASE WHEN TransactionType = 'WITHDRAW' THEN Amount ELSE 0 END), 0) as TotalWithdrawalAmount " +
+                    "FROM SavingTransactions WHERE SavingID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    SavingTransactionSummary summary = new SavingTransactionSummary();
+                    summary.setSavingID(savingID);
+                    summary.setTotalTransactions(rs.getInt("TotalTransactions"));
+                    summary.setTotalDeposits(rs.getInt("TotalDeposits"));
+                    summary.setTotalWithdrawals(rs.getInt("TotalWithdrawals"));
+                    summary.setTotalDepositAmount(rs.getDouble("TotalDepositAmount"));
+                    summary.setTotalWithdrawalAmount(rs.getDouble("TotalWithdrawalAmount"));
+                    return summary;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting transaction summary: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

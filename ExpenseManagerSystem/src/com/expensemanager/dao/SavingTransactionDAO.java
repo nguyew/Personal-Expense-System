@@ -137,6 +137,28 @@ public class SavingTransactionDAO {
         return transactions;
     }
     
+    //  Update saving transaction
+    public boolean updateSavingTransaction (SavingTransaction savingTransaction) {
+        String sql = "UPDATE SavingTransactions SET Amount = ?, TransactionType = ?, Description = ?, TransactionDate = ? WHERE SavingTransactionID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setDouble(1, savingTransaction.getAmount());
+            pstmt.setString(2, savingTransaction.getTransactionType());
+            pstmt.setString(3, savingTransaction.getDescription());
+            pstmt.setDate(4, new Date(savingTransaction.getTransactionDate().getTime()));
+            pstmt.setInt(5, savingTransaction.getSavingTransactionID());
+            
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating saving transaction: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

@@ -159,6 +159,23 @@ public class SavingTransactionDAO {
         return false;
     }
     
+    // Delete saving transaction
+    public boolean deleteSavingTransaction (int savingTransactionID) {
+        String sql = "DELETE FROM SavingTransactions WHERE SavingTransactionID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingTransactionID);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting saving transaction: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

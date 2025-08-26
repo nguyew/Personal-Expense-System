@@ -130,6 +130,38 @@ public class SavingService {
         }
     }
     
+    // Delete saving goal
+    public ServiceResult<Void> deleteSaving (int savingID, int userID) {
+        try {
+            // Check if saving exists and belongs to user
+            Saving saving = savingDAO.getSavingById(savingID);
+            if (saving == null) {
+                return ServiceResult.error("Không tìm thấy mục tiêu tiết kiệm");
+            }
+            
+            if (saving.getUserID() != userID) {
+                return ServiceResult.error("Bạn không có quyền xóa mục tiêu tiết kiệm này");
+            }
+            
+            // Check if saving has transactions
+            int transactionCount = savingTransactionDAO.getSavingTransactionsCountBySaving(savingID);
+            if (transactionCount > 0) {
+                return ServiceResult.error("Không thể xóa mục tiêu tiết kiệm đang có " + transactionCount + " giao dịch");
+            }
+            
+            // Delete saving
+            boolean deleted = savingDAO.deleteSaving(savingID);
+            
+            if (deleted) {
+                return ServiceResult.success("Mục tiêu tiết kiệm đã được xóa");
+            } else {
+                return ServiceResult.error("Không thể xóa mục tiêu tiết kiệm");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

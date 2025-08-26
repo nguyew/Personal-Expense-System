@@ -10,6 +10,7 @@ public class DAOFactory {
     private TransactionDAO transactionDAO;
     private BudgetDAO budgetDAO;
     private SavingDAO savingDAO;
+    private SavingTransactionDAO savingTransactionDAO;
     private ReportDAO reportDAO;
     private RecurringTransactionDAO recurringTransactionDAO;
     
@@ -17,7 +18,7 @@ public class DAOFactory {
         
     }
     
-    public static DAOFactory getInstance() {
+    public static synchronized DAOFactory getInstance() {
         if (instance == null) {
             instance = new DAOFactory();
         }
@@ -58,6 +59,13 @@ public class DAOFactory {
             savingDAO = new SavingDAO();
         }
         return savingDAO;
+    }
+    
+    public SavingTransactionDAO getSavingTransactionDAO () {
+        if (savingTransactionDAO == null) {
+            savingTransactionDAO = new SavingTransactionDAO();
+        }
+        return savingTransactionDAO;
     }
     
     public ReportDAO getReportDAO () {
@@ -134,6 +142,33 @@ public class DAOFactory {
                 return false;
             }
             
+            // Test SavingTransactionDAO
+            try {
+                getSavingTransactionDAO().getSavingTransactionsBySaving(1);
+                System.out.println("✓ SavingTransactionDAO working");
+            } catch (Exception e) {
+                System.err.println("✗ SavingTransactionDAO failed: " + e.getMessage());
+                return false;
+            }
+            
+            // Test ReportDAO
+            try {
+                getReportDAO().getMonthlyTrend(1, 12); // Test với user ID = 1, 12 tháng gần đây
+                System.out.println("✓ ReportDAO working");
+            } catch (Exception e) {
+                System.err.println("✗ ReportDAO failed: " + e.getMessage());
+                return false;
+            }
+
+            // Test RecurringTransactionDAO
+            try {
+                getRecurringTransactionDAO().getActiveRecurringTransactions(1); // Test với user ID = 1
+                System.out.println("✓ RecurringTransactionDAO working");
+            } catch (Exception e) {
+                System.err.println("✗ RecurringTransactionDAO failed: " + e.getMessage());
+                return false;
+            }
+            
             System.out.println("All DAO tests passed!");
             return true;
             
@@ -141,6 +176,27 @@ public class DAOFactory {
             System.err.println("DAO Factory test failed: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }  
+    }
+    
+    // Close all DAO connections (if needed)
+    public void closeAll () {
+        // Reset all DAO instances
+        userDAO = null;
+        categoryDAO = null;
+        transactionDAO = null;
+        budgetDAO = null;
+        savingDAO = null;
+        savingTransactionDAO = null;
+        recurringTransactionDAO = null;
+        reportDAO = null;
+    }
+    
+    // Reset factory instance (for testing purposes)
+    public static void resetInstance () {
+        if (instance != null) {
+            instance.closeAll();
+            instance = null;
         }
     }
     

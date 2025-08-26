@@ -119,4 +119,83 @@ public class SavingService {
         
         return ServiceResult.success("Dữ liệu hợp lệ");
     }
+    
+    // Inner class for saving progress summary data
+    public static class SavingProgressSummary {
+        private int totalSavings;
+        private int activeCount;
+        private int completedCount;
+        private int highPriorityCount;
+        private int overdueCount;
+        private double totalTargetAmount;
+        private double totalCurrentAmount;
+        
+        // Getters and setters
+        public int getTotalSavings() { return totalSavings; }
+        public void setTotalSavings(int totalSavings) { this.totalSavings = totalSavings; }
+        
+        public int getActiveCount() { return activeCount; }
+        public void setActiveCount(int activeCount) { this.activeCount = activeCount; }
+        
+        public int getCompletedCount() { return completedCount; }
+        public void setCompletedCount(int completedCount) { this.completedCount = completedCount; }
+        
+        public int getHighPriorityCount() { return highPriorityCount; }
+        public void setHighPriorityCount(int highPriorityCount) { this.highPriorityCount = highPriorityCount; }
+        
+        public int getOverdueCount() { return overdueCount; }
+        public void setOverdueCount(int overdueCount) { this.overdueCount = overdueCount; }
+        
+        public double getTotalTargetAmount() { return totalTargetAmount; }
+        public void setTotalTargetAmount(double totalTargetAmount) { this.totalTargetAmount = totalTargetAmount; }
+        
+        public double getTotalCurrentAmount() { return totalCurrentAmount; }
+        public void setTotalCurrentAmount(double totalCurrentAmount) { this.totalCurrentAmount = totalCurrentAmount; }
+        
+        // Helper methods
+        public double getOverallProgress() {
+            if (totalTargetAmount == 0) return 0;
+            return (totalCurrentAmount / totalTargetAmount) * 100;
+        }
+        
+        public double getCompletionRate() {
+            if (totalSavings == 0) return 0;
+            return ((double) completedCount / totalSavings) * 100;
+        }
+        
+        public boolean hasOverdueSavings() {
+            return overdueCount > 0;
+        }
+        
+        public String getFormattedTotalTarget() {
+            return CurrencyUtils.formatCurrency(totalTargetAmount);
+        }
+        
+        public String getFormattedTotalCurrent() {
+            return CurrencyUtils.formatCurrency(totalCurrentAmount);
+        }
+        
+        public String getFormattedOverallProgress() {
+            return String.format("%.1f%%", getOverallProgress());
+        }
+        
+        public String getFormattedCompletionRate() {
+            return String.format("%.1f%%", getCompletionRate());
+        }
+        
+        @Override
+        public String toString() {
+            return "SavingProgressSummary{" +
+                    "totalSavings=" + totalSavings +
+                    ", activeCount=" + activeCount +
+                    ", completedCount=" + completedCount +
+                    ", highPriorityCount=" + highPriorityCount +
+                    ", overdueCount=" + overdueCount +
+                    ", totalTargetAmount=" + totalTargetAmount +
+                    ", totalCurrentAmount=" + totalCurrentAmount +
+                    ", overallProgress=" + String.format("%.1f%%", getOverallProgress()) +
+                    ", completionRate=" + String.format("%.1f%%", getCompletionRate()) +
+                    '}';
+        }
+    }
 }

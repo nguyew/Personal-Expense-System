@@ -256,6 +256,30 @@ public class SavingTransactionDAO {
         return null;
     }
     
+    // Get recent transactions (last N transactions)
+    public List<SavingTransaction> getRecentTransactions (int savingID, int limit) {
+        List<SavingTransaction> transactions = new ArrayList<>();
+        String sql = "SELECT TOP (?) * FROM SavingTransactions WHERE SavingID = ? ORDER BY CreatedDate DESC";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, limit);
+            pstmt.setInt(2, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    transactions.add(mapResultSetToSavingTransaction(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting recent transactions: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return transactions;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

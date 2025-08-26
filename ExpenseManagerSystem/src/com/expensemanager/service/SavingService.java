@@ -65,6 +65,71 @@ public class SavingService {
         }
     }
     
+    // Update existing saving goal
+    public ServiceResult<Saving> updateSaving (Saving saving) {
+        try {
+            // Validate input data
+            ServiceResult<Void> validation = validateSavingData(
+                saving.getUserID(),
+                saving.getSavingName(),
+                saving.getDescription(),
+                saving.getTargetAmount(),
+                saving.getTargetDate(),
+                saving.getPriority()
+            );
+            
+            if (!validation.isSuccess()) {
+                return ServiceResult.error(validation.getMessage());
+            }
+            
+            // Check if saving exists and belongs to user
+            Saving existingSaving = savingDAO.getSavingById(saving.getSavingID());
+            if (existingSaving == null) {
+                return ServiceResult.error("Không tìm thấy mục tiêu tiết kiệm");
+            }
+            
+            if (existingSaving.getUserID() != saving.getUserID()) {
+                return ServiceResult.error("Bạn không có quyền sửa mục tiêu tiết kiệm này");
+            }
+            
+            // Do not allow editing completed savings
+            if (existingSaving.isIsCompleted()) {
+                return ServiceResult.error("Không thể sửa mục tiêu tiết kiệm đã hoàn thành");
+            }
+            
+            // Check if new name conflicts with existing savings (except current one)
+            List<Saving> existingSavings = savingDAO.getSavingsByUser(saving.getUserID());
+            for (Saving s : existingSavings) {
+                if (s.getSavingID() != saving.getSavingID() &&
+                    s.getSavingName().equalsIgnoreCase(saving.getSavingName().trim())) {
+                    return ServiceResult.error("Mục tiêu tiết kiệm '" + saving.getSavingName() + "' đã tồn tại");
+                }
+            }
+            
+            // Preserve current amount and completion status
+            saving.setCurrentAmount(existingSaving.getCurrentAmount());
+            saving.setIsCompleted(existingSaving.isIsCompleted());
+            saving.setCompletedDate(existingSaving.getCompletedDate());
+            
+            // Check if goal is now completed with new target amount
+            if (saving.getCurrentAmount() >= saving.getTargetAmount() && !saving.isIsCompleted()) {
+                saving.setIsCompleted(true);
+                saving.setCompletedDate(new Date());
+            }
+            
+            // Update saving
+            boolean updated = savingDAO.updateSaving(saving);
+            
+            if (updated) {
+                return ServiceResult.success(saving, "Mục tiêu tiết kiệm đã đucợ cập nhật");
+            } else {
+                return ServiceResult.error("Không thể cập nhật mục tiêu tiết kiệm");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống" + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

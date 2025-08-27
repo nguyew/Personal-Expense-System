@@ -336,15 +336,62 @@ public class SavingService {
             // Check if saving belongs to user
             Saving saving = savingDAO.getSavingById(savingID);
             if (saving == null) {
-                return ServiceResult.error("Không tìm thầy mục tiêu tiết kiệm");
+                return ServiceResult.error("Không tìm thấy mục tiêu tiết kiệm");
             }
             
             if (saving.getUserID() != userID) {
-                return ServiceResult.error("Bạn không quyền xem lịch sử giao dịch này");
+                return ServiceResult.error("Bạn không có quyền xem lịch sử giao dịch này");
             }
             
             List<SavingTransaction> transactions = savingTransactionDAO.getSavingTransactionsBySaving(savingID);
             return ServiceResult.success(transactions, "Lấy lịch sử giao dịch tiết kiệm thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
+    // Get saving progress summary
+    public ServiceResult<SavingProgressSummary> getSavingProgressSummary (int userID) {
+        try {
+            List<Saving> savings = savingDAO.getSavingsByUser(userID);
+            
+            SavingProgressSummary summary = new SavingProgressSummary();
+            summary.setTotalSavings(savings.size());
+            
+            double totalTargetAmount = 0;
+            double totalCurrentAmount = 0;
+            int completedCount = 0;
+            int highPriority = 0;
+            int overdueSavings = 0;
+            
+            Date today = new Date();
+            
+            for (Saving saving : savings) {
+                totalTargetAmount += saving.getTargetAmount();
+                totalCurrentAmount += saving.getCurrentAmount();
+                
+                if (saving.isIsCompleted()) {
+                    completedCount++;
+                }
+                
+                if (saving.getPriority() >= 4) { // High priority (4-5)
+                    highPriority++;
+                }
+                
+                // Check if overdue
+                if (!saving.isIsCompleted() && saving.getTargetDate() != null && saving.getTargetDate().before(today)) {
+                    overdueSavings++;
+                }
+            }
+            
+            summary.setTotalTargetAmount(totalTargetAmount);
+            summary.setTotalCurrentAmount(totalCurrentAmount);
+            summary.setCompletedCount(completedCount);
+            summary.setActiveCount(savings.size() - completedCount);
+            summary.setHighPriorityCount(highPriority);
+            summary.setOverdueCount(overdueSavings);
+            
+            return ServiceResult.success(summary, "Lấy tổng hợp tiến độ tiết kiệm thành công");
         } catch (Exception e) {
             return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }

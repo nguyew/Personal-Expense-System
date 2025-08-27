@@ -299,6 +299,37 @@ public class SavingService {
         }
     }
     
+    // Get active (incomplete) savings for a user
+    public ServiceResult<List<Saving>> getActiveSavings (int userID) {
+        try {
+            List<Saving> allSavings = savingDAO.getSavingsByUser(userID);
+            List<Saving> activeSavings = new ArrayList<>();
+            
+            for (Saving saving : allSavings) {
+                if (!saving.isIsCompleted()) {
+                    activeSavings.add(saving);
+                }
+            }
+            
+            // Sort by priority and target date
+            activeSavings.sort((s1, s2) -> {
+                // First by priority (high to low)
+                int priorityCompare = Integer.compare(s2.getPriority(), s1.getPriority());
+                if (priorityCompare != 0) return priorityCompare;
+                
+                // Then by target date (closest first)
+                if (s1.getTargetDate() == null && s2.getTargetDate() == null) return 0;
+                if (s1.getTargetDate() == null) return 1;
+                if (s2.getTargetDate() == null) return -1;
+                return s1.getTargetDate().compareTo(s2.getTargetDate());
+            });
+            
+            return ServiceResult.success(activeSavings, "Lấy danh sách mục tiêu tiết kiệm đang hoạt động thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

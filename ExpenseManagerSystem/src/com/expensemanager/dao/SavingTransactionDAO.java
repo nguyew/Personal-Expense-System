@@ -280,6 +280,28 @@ public class SavingTransactionDAO {
         return transactions;
     }
     
+    // Get saving transactions count by saving ID
+    public int getSavingTransactionsCountBySaving (int savingID) {
+        String sql = "SELECT COUNT(*) as TransactionCount FROM SavingTransactions WHERE SavingID = ?";
+        
+        try (Connection conn = DatabaseConnection.getDBConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, savingID);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TransactionCount");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting saving transactions count: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
+    
     // Helper method to map ResultSet to SavingTransaction
     private SavingTransaction mapResultSetToSavingTransaction(ResultSet rs) throws SQLException {
         SavingTransaction transaction = new SavingTransaction();

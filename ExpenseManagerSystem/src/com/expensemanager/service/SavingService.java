@@ -226,6 +226,60 @@ public class SavingService {
         }
     }
     
+    // Withdraw money from saving goal
+    public ServiceResult<SavingTransaction> withdrawFromSaving (int savingID, int userID, double amount, String description) {
+        try {
+            // Validate amount
+            if (amount <= 0) {
+                return ServiceResult.error("Số tiền rút phải lớn hơn 0");
+            }
+            
+            // Check if saving exists and belongs to user
+            Saving saving = savingDAO.getSavingById(savingID);
+            if (saving == null) {
+                return ServiceResult.error("Không tìm thấy mục tiêu tiết kiệm");
+            }
+            
+            // Check if sufficient funds
+            if (saving.getUserID() != userID) {
+                return ServiceResult.error("Số dư không đủ. Số dư hiện tại: " + CurrencyUtils.formatCurrency(saving.getCurrentAmount()));
+            }
+            
+            // Create saving transaction
+            SavingTransaction transaction = new SavingTransaction();
+            transaction.setSavingID(savingID);
+            transaction.setAmount(amount);
+            transaction.setTransactionType("WITHDRAW");
+            transaction.setDescription(description != null ? description.trim() : "Rút tiền tiết kiệm");
+            transaction.setTransactionDate(new Date());
+            transaction.setCreatedDate(new Date());
+            
+            // Add transaction
+            boolean created = savingTransactionDAO.createSavingTransaction(transaction);
+            
+            if (created) {
+                // Update saving current amount
+                double newCurrentAmount = saving.getCurrentAmount() - amount;
+                saving.setCurrentAmount(newCurrentAmount);
+                
+                // If was completed but now below target, mark as incomplete
+                if (saving.isIsCompleted() && newCurrentAmount < saving.getTargetAmount()) {
+                    saving.setIsCompleted(false);
+                    saving.setCompletedDate(null);
+                }
+                
+                savingDAO.updateSaving(saving);
+                
+                return ServiceResult.success(transaction, 
+                    "Đã rút " + CurrencyUtils.formatCurrency(amount) + " từ mục tiêu tiết kiệm");
+            } else {
+                return ServiceResult.error("Không thể rút tiền từ mục tiêu tiết kiệm");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

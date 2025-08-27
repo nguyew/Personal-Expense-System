@@ -162,6 +162,70 @@ public class SavingService {
         }
     }
     
+    // Add money to saving goal
+    public ServiceResult<SavingTransaction> depositToSaving (int savingID, int userID, double amount, String description) {
+        try {
+            // Validate amount
+            if (amount <= 0) {
+                return ServiceResult.error("Số tiền gửi phải lớn hơn 0");
+            }
+            
+            if (amount > 999999999999.99) {
+                return ServiceResult.error("Số tiền gửi quá lớn");
+            }
+            
+            // Check if saving exists and belongs to user
+            Saving saving = savingDAO.getSavingById(savingID);
+            if (saving == null) {
+                return ServiceResult.error("Không tìm thấy mục tiêu tiết kiệm");
+            }
+            
+            if (saving.getUserID() != userID) {
+                return ServiceResult.error("Bạn không có quyền thêm tiền vào mục tiêu này");
+            }
+            
+            if (saving.isIsCompleted()) {
+                return ServiceResult.error("Mục tiêu tiết kiệm đã hoàn thành , không thể thêm tiền");
+            }
+            
+            // Create saving transaction
+            SavingTransaction transaction = new SavingTransaction();
+            transaction.setSavingID(savingID);
+            transaction.setAmount(amount);
+            transaction.setTransactionType("DEPOSIT");
+            transaction.setDescription(description != null ? description.trim(): "Gửi tiền tiết kiệm");
+            transaction.setTransactionDate(new Date());
+            transaction.setCreatedDate(new Date());
+            
+            // Add transaction
+            boolean created = savingTransactionDAO.createSavingTransaction(transaction);
+            
+            if (created) {
+                // Update saving current amount
+                double newCurrentAmount = saving.getCurrentAmount() + amount;
+                saving.setCurrentAmount(newCurrentAmount);
+                
+                // Check if goal is completed
+                if (newCurrentAmount >= saving.getTargetAmount() && !saving.isIsCompleted()) {
+                    saving.setIsCompleted(true);
+                    saving.setCompletedDate(new Date());
+                }
+                
+                savingDAO.updateSaving(saving);
+                String message = "Đã gửi " + CurrencyUtils.formatCurrency(amount) + " vào mục tiêu tiết kiệm";
+                if (saving.isIsCompleted()) {
+                    message += ". 🎉 Chúc mừng! Bạn đã hoàn thành mục tiêu tiết kiệm!";
+                }
+                
+                return ServiceResult.success(transaction, message);
+            } else {
+                return ServiceResult.error("Không thê gửi tiền vào mục tiêu tiết kiệm");
+            }
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

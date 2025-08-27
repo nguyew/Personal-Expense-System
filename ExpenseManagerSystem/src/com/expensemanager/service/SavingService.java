@@ -343,8 +343,10 @@ public class SavingService {
                 return ServiceResult.error("Bạn không quyền xem lịch sử giao dịch này");
             }
             
-            List<SavingTransaction> transactions = savingTransactionDAO.getTransactionsBySaving(savingID);
+            List<SavingTransaction> transactions = savingTransactionDAO.getSavingTransactionsBySaving(savingID);
+            return ServiceResult.success(transactions, "Lấy lịch sử giao dịch tiết kiệm thành công");
         } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
     

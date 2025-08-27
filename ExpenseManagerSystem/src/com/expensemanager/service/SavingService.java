@@ -280,6 +280,25 @@ public class SavingService {
         }
     }
     
+    // Get all savings for a user
+    public ServiceResult<List<Saving>> getUserSavings (int userID) {
+        try {
+            List<Saving> savings = savingDAO.getSavingsByUser(userID);
+            
+            // Sort by priority (high to low) and then by creation date (newest first)
+            savings.sort((s1, s2) -> {
+                int priorityCompare = Integer.compare(s2.getPriority(), s1.getPriority());
+                if (priorityCompare != 0) return priorityCompare;
+                
+                return s2.getCreatedDate().compareTo(s1.getCreatedDate());
+            });
+            
+            return ServiceResult.success(savings, "Lấy danh sách mục tiêu tiết kiệm thành công");
+        } catch (Exception e) {
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

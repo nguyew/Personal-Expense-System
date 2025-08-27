@@ -397,6 +397,48 @@ public class SavingService {
         }
     }
     
+    // Get savings that need attetion (overdue or high priority with low progress)
+    public ServiceResult<List<Saving>> getSavingsNeedingAttention (int userID) {
+        try {
+            List<Saving> allSavings = savingDAO.getSavingsByUser(userID);
+            List<Saving> needAttention = new ArrayList<>();
+            
+            Date today = new Date();
+            
+            for (Saving saving : allSavings) {
+                if (saving.isIsCompleted()) continue;
+                
+                boolean needsAttention = false;
+                
+                // Overdue savings
+                if (saving.getTargetDate() != null && saving.getTargetDate().before(today)) {
+                    needsAttention = true;
+                }
+                
+                // High priority savings with low progress
+                if (saving.getPriority() >= 4 && saving.getCompletionPercentage() < 25) {
+                    needsAttention = true;
+                }
+                
+                // Savings with target date in next 30 days but low progress
+                if (saving.getTargetDate() != null) {
+                    long daysUntilTarget = (saving.getTargetDate().getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysUntilTarget > 0 && daysUntilTarget <= 30 && saving.getCompletionPercentage() < 75) {
+                        needsAttention = true;
+                    }
+                }
+                
+                if (needsAttention) {
+                    needAttention.add(saving);
+                }
+            }
+            
+            // Sort by urgency (overdue first, then by target date)
+            
+        } catch (Exception e) {
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {

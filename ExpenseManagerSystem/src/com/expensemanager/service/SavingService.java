@@ -121,12 +121,12 @@ public class SavingService {
             boolean updated = savingDAO.updateSaving(saving);
             
             if (updated) {
-                return ServiceResult.success(saving, "Mục tiêu tiết kiệm đã đucợ cập nhật");
+                return ServiceResult.success(saving, "Mục tiêu tiết kiệm đã được cập nhật");
             } else {
                 return ServiceResult.error("Không thể cập nhật mục tiêu tiết kiệm");
             }
         } catch (Exception e) {
-            return ServiceResult.error("Lỗi hệ thống" + e.getMessage());
+            return ServiceResult.error("Lỗi hệ thống: " + e.getMessage());
         }
     }
     
@@ -211,7 +211,7 @@ public class SavingService {
         
         // Validate priority
         if (priority < 1 || priority > 5) {
-            return ServiceResult.error("D9o65 ưu tiên phải từ 1 đến 5");
+            return ServiceResult.error("Độ ưu tiên phải từ 1 đến 5");
         }
         
         return ServiceResult.success("Dữ liệu hợp lệ");

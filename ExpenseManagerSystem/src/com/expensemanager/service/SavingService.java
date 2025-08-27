@@ -330,6 +330,24 @@ public class SavingService {
         }
     }
     
+    // Get saving transactions for a specific saving goal
+    public ServiceResult<List<SavingTransaction>> getSavingTransactions (int savingID, int userID) {
+        try {
+            // Check if saving belongs to user
+            Saving saving = savingDAO.getSavingById(savingID);
+            if (saving == null) {
+                return ServiceResult.error("Không tìm thầy mục tiêu tiết kiệm");
+            }
+            
+            if (saving.getUserID() != userID) {
+                return ServiceResult.error("Bạn không quyền xem lịch sử giao dịch này");
+            }
+            
+            List<SavingTransaction> transactions = savingTransactionDAO.getTransactionsBySaving(savingID);
+        } catch (Exception e) {
+        }
+    }
+    
     // Private helper methods
     private ServiceResult<Void> validateSavingData(int userID, String savingName, String description, 
                                                  double targetAmount, Date targetDate, int priority) {
